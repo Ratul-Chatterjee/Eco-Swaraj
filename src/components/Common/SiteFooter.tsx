@@ -1,5 +1,9 @@
 import React from "react";
-import { Mail, MapPin, ExternalLink } from "lucide-react";
+import { Mail, MapPin, ExternalLink, ArrowRight } from "lucide-react";
+
+const openAuthModal = () => {
+  window.dispatchEvent(new CustomEvent("eco-swaraj:open-auth"));
+};
 
 export const SiteFooter: React.FC = () => {
   return (
@@ -20,26 +24,57 @@ export const SiteFooter: React.FC = () => {
             <h4>Contact</h4>
             <ul>
               <li><MapPin size={14} /> India</li>
-              <li><Mail size={14} /> [EMAIL_ADDRESS]</li>
+              <li>
+                <a
+                  href="https://hack2skill.com/dashboard/user_public_profile/?userId=69e4ded1f8f1d2379b1f3f97"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+                >
+                  <Mail size={14} /> Ratul Chatterjee Hack2Skill
+                </a>
+              </li>
             </ul>
           </div>
 
           <div className="site-footer__card">
             <h4>Explore</h4>
             <ul>
-              <li>Eco Activity</li>
-              <li>My Dashboard</li>
-              <li>Daily Logs</li>
-              <li>Carbon Calculator</li>
+              <li>
+                <button
+                  type="button"
+                  onClick={openAuthModal}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    color: "inherit",
+                    font: "inherit",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  <ArrowRight size={14} /> Get Started
+                </button>
+              </li>
             </ul>
           </div>
 
           <div className="site-footer__card">
             <h4>Follow</h4>
             <ul>
-              <li><ExternalLink size={14} /> GitHub</li>
-              <li><ExternalLink size={14} /> Instagram</li>
-              <li><ExternalLink size={14} /> LinkedIn</li>
+              <li>
+                <a href="https://github.com/Ratul-Chatterjee/Eco-Swaraj" target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                  <ExternalLink size={14} /> GitHub
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/ratulchatterjee99" target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                  <ExternalLink size={14} /> LinkedIn
+                </a>
+              </li>
             </ul>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { IndiaCarbonMap } from "../Common/IndiaCarbonMap";
 export const LandingPage: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
+  const openAuthModal = () => setShowAuthModal(true);
   const closeAuthModal = () => setShowAuthModal(false);
 
   useEffect(() => {
@@ -16,8 +17,14 @@ export const LandingPage: React.FC = () => {
       }
     };
 
+    const onOpenAuth = () => openAuthModal();
+
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener("eco-swaraj:open-auth", onOpenAuth as EventListener);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("eco-swaraj:open-auth", onOpenAuth as EventListener);
+    };
   }, []);
 
   return (
@@ -61,7 +68,7 @@ export const LandingPage: React.FC = () => {
           <img src="/logo.png" alt="Eco-Swaraj Logo" style={{ width: "42px", height: "42px", objectFit: "contain" }} />
           <h1 style={{ fontSize: "1.6rem", fontWeight: "700" }} className="text-gradient">Eco-Swaraj</h1>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowAuthModal(true)}>
+        <button className="btn btn-primary" onClick={openAuthModal}>
           Access Dashboard
         </button>
       </header>
@@ -115,7 +122,7 @@ export const LandingPage: React.FC = () => {
             </p>
 
             <div style={{ display: "flex", gap: "16px" }}>
-              <button className="btn btn-primary" style={{ padding: "14px 28px", fontSize: "1.05rem" }} onClick={() => setShowAuthModal(true)}>
+              <button className="btn btn-primary" style={{ padding: "14px 28px", fontSize: "1.05rem" }} onClick={openAuthModal}>
                 Get Started <ArrowRight size={18} />
               </button>
               <a href="#about" className="btn btn-secondary" style={{ padding: "14px 28px", fontSize: "1.05rem" }}>
@@ -130,7 +137,7 @@ export const LandingPage: React.FC = () => {
               <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
                 <div style={{ color: "var(--color-warning)" }}><Globe size={24} /></div>
                 <div>
-                  <div style={{ fontWeight: "600" }}>1.8 tonnes CO₂e</div>
+                  <div style={{ fontWeight: "600" }}>1.8 tonnes CO2e</div>
                   <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Average annual carbon footprint per capita in India.</div>
                 </div>
               </div>
@@ -139,7 +146,7 @@ export const LandingPage: React.FC = () => {
                 <div style={{ color: "var(--color-danger)" }}><ShieldAlert size={24} /></div>
                 <div>
                   <div style={{ fontWeight: "600" }}>Scope 2 Grid Intensity</div>
-                  <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Coal-heavy states (e.g. Gujarat) emit ~0.82 kg CO₂/kWh, while hydro-rich states (e.g. Kerala) emit only ~0.40 kg.</div>
+                  <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Coal-heavy states (e.g. Gujarat) emit ~0.82 kg CO2/kWh, while hydro-rich states (e.g. Kerala) emit only ~0.40 kg.</div>
                 </div>
               </div>
 
