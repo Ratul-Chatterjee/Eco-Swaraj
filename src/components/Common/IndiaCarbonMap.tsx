@@ -2,7 +2,7 @@
 import indiaSvgMarkup from "../../assets/India.svg?raw";
 import { fallbackStateValues, subscribeToCarbonAnalytics } from "../../services/carbonAnalytics";
 import type { CarbonAnalyticsDocument as CarbonAnalyticsDoc } from "../../services/carbonAnalyticsContract";
-import { buildIndiaRegionAliasLookup, INDIA_REGION_LOOKUP, normalizeIndiaRegionName } from "../../data/indiaMapRegions";
+import { buildIndiaRegionAliasLookup, INDIA_MAP_REGIONS, INDIA_REGION_LOOKUP, normalizeIndiaRegionName } from "../../data/indiaMapRegions";
 
 const FALLBACK_NATIONAL_AVERAGE = 1.8;
 
@@ -34,12 +34,17 @@ export const IndiaCarbonMap: React.FC = () => {
     return normalized;
   }, [analytics]);
 
+  const resolveRegionValue = (regionName: string) => {
+    const canonical = regionAliasLookup.get(normalizeIndiaRegionName(regionName)) ?? regionName;
+    return valuesByState.get(normalizeIndiaRegionName(canonical)) ?? valuesByState.get(normalizeIndiaRegionName(regionName)) ?? liveNationalAverage;
+  };
+
   useEffect(() => {
     const doc = new DOMParser().parseFromString(indiaSvgMarkup, "image/svg+xml");
     Array.from(doc.querySelectorAll("path")).forEach((path, index) => {
-      const region = INDIA_REGION_LOOKUP.get(index + 1) ?? { name: `Region ${index + 1}` };
-      const canonicalName = regionAliasLookup.get(region.name.toLowerCase().replace(/[&/().,-]/g, " ").replace(/\s+/g, " ").trim()) ?? region.name;
-      const value = valuesByState.get(normalizeIndiaRegionName(canonicalName)) ?? liveNationalAverage;
+      const region = INDIA_REGION_LOOKUP.get(index + 1) ?? INDIA_MAP_REGIONS[index] ?? { name: `Region ${index + 1}` };
+      const canonicalName = regionAliasLookup.get(normalizeIndiaRegionName(region.name)) ?? region.name;
+      const value = resolveRegionValue(canonicalName);
       const band = getBand(value);
       path.setAttribute("data-region-name", canonicalName);
       path.setAttribute("data-region-value", String(value));
@@ -50,7 +55,7 @@ export const IndiaCarbonMap: React.FC = () => {
       path.setAttribute("style", "cursor:pointer;transition:fill .2s ease,stroke .2s ease;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18));");
     });
     setSvgMarkup(new XMLSerializer().serializeToString(doc));
-  }, [liveNationalAverage, regionAliasLookup, valuesByState]);
+  }, [liveNationalAverage, regionAliasLookup, resolveRegionValue, valuesByState]);
 
   return (
     <section style={{ width: "100%", padding: "0 0 24px", background: "none" }}>
