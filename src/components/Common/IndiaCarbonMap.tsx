@@ -1,50 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import indiaSvgMarkup from "../../assets/India.svg?raw";
 import { fallbackStateValues, subscribeToCarbonAnalytics } from "../../services/carbonAnalytics";
 import type { CarbonAnalyticsDocument as CarbonAnalyticsDoc } from "../../services/carbonAnalyticsContract";
+import { buildIndiaRegionAliasLookup, INDIA_REGION_LOOKUP, normalizeIndiaRegionName } from "../../data/indiaMapRegions";
 
 const FALLBACK_NATIONAL_AVERAGE = 1.8;
 
 type MapRegion = { name: string; value: number };
-
-const regionOrder: MapRegion[] = [
-  { name: "Jammu & Kashmir", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Ladakh", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Himachal Pradesh", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Punjab", value: 1.8 },
-  { name: "Haryana", value: 1.9 },
-  { name: "Delhi (NCT)", value: 2.8 },
-  { name: "Uttarakhand", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Rajasthan", value: 1.4 },
-  { name: "Uttar Pradesh", value: 1.2 },
-  { name: "Bihar", value: 0.6 },
-  { name: "Sikkim", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Arunachal Pradesh", value: 0.7 },
-  { name: "Assam", value: 0.8 },
-  { name: "Meghalaya", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Nagaland", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Manipur", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Mizoram", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Tripura", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "West Bengal", value: 1.8 },
-  { name: "Gujarat", value: 2.5 },
-  { name: "Madhya Pradesh", value: 1.5 },
-  { name: "Chhattisgarh", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Jharkhand", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Odisha", value: 2.2 },
-  { name: "Maharashtra", value: 2.0 },
-  { name: "Goa", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Karnataka", value: 1.5 },
-  { name: "Telangana", value: 1.6 },
-  { name: "Andhra Pradesh", value: 1.7 },
-  { name: "Kerala", value: 1.0 },
-  { name: "Tamil Nadu", value: 1.7 },
-  { name: "Puducherry", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Andaman and Nicobar Islands", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Lakshadweep", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Chandigarh", value: FALLBACK_NATIONAL_AVERAGE },
-  { name: "Dadra and Nagar Haveli and Daman and Diu", value: FALLBACK_NATIONAL_AVERAGE }
-];
 
 const getBand = (value: number) => {
   if (value < FALLBACK_NATIONAL_AVERAGE * 0.95) return { fill: "#19d36b", stroke: "#0ea45d" };
@@ -60,16 +22,26 @@ export const IndiaCarbonMap: React.FC = () => {
 
   useEffect(() => subscribeToCarbonAnalytics(setAnalytics), []);
 
-  const valuesByState = useMemo(() => new Map<string, number>(Object.entries({ ...fallbackStateValues, ...(analytics?.stateValues ?? {}) })), [analytics]);
+  const regionAliasLookup = useMemo(() => buildIndiaRegionAliasLookup(), []);
   const liveNationalAverage = analytics?.nationalAverage ?? FALLBACK_NATIONAL_AVERAGE;
+
+  const valuesByState = useMemo(() => {
+    const merged = { ...fallbackStateValues, ...(analytics?.stateValues ?? {}) };
+    const normalized = new Map<string, number>();
+    Object.entries(merged).forEach(([key, value]) => {
+      normalized.set(normalizeIndiaRegionName(key), value);
+    });
+    return normalized;
+  }, [analytics]);
 
   useEffect(() => {
     const doc = new DOMParser().parseFromString(indiaSvgMarkup, "image/svg+xml");
     Array.from(doc.querySelectorAll("path")).forEach((path, index) => {
-      const region = regionOrder[index] ?? { name: `Region ${index + 1}`, value: FALLBACK_NATIONAL_AVERAGE };
-      const value = valuesByState.get(region.name) ?? region.value ?? liveNationalAverage;
+      const region = INDIA_REGION_LOOKUP.get(index + 1) ?? { name: `Region ${index + 1}` };
+      const canonicalName = regionAliasLookup.get(region.name.toLowerCase().replace(/[&/().,-]/g, " ").replace(/\s+/g, " ").trim()) ?? region.name;
+      const value = valuesByState.get(normalizeIndiaRegionName(canonicalName)) ?? liveNationalAverage;
       const band = getBand(value);
-      path.setAttribute("data-region-name", region.name);
+      path.setAttribute("data-region-name", canonicalName);
       path.setAttribute("data-region-value", String(value));
       path.setAttribute("fill", band.fill);
       path.setAttribute("stroke", band.stroke);
@@ -78,7 +50,7 @@ export const IndiaCarbonMap: React.FC = () => {
       path.setAttribute("style", "cursor:pointer;transition:fill .2s ease,stroke .2s ease;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18));");
     });
     setSvgMarkup(new XMLSerializer().serializeToString(doc));
-  }, [liveNationalAverage, valuesByState]);
+  }, [liveNationalAverage, regionAliasLookup, valuesByState]);
 
   return (
     <section style={{ width: "100%", padding: "0 0 24px", background: "none" }}>
@@ -117,4 +89,3 @@ export const IndiaCarbonMap: React.FC = () => {
     </section>
   );
 };
-

@@ -1,6 +1,7 @@
-import { db, isFirebaseConfigured } from "./firebase";
+﻿import { db, isFirebaseConfigured } from "./firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import type { CarbonAnalyticsDocument as SharedCarbonAnalyticsDoc } from "./carbonAnalyticsContract";
+import { normalizeIndiaRegionName } from "../data/indiaMapRegions";
 
 export type CarbonAnalyticsStateMap = Record<string, number>;
 export type CarbonAnalyticsDoc = SharedCarbonAnalyticsDoc;
@@ -47,7 +48,7 @@ export const fallbackStateValues: CarbonAnalyticsStateMap = {
 };
 
 export const getFallbackStateValue = (stateName: string) => {
-  return fallbackStateValues[stateName] ?? FALLBACK_NATIONAL_AVERAGE;
+  return fallbackStateValues[normalizeIndiaRegionName(stateName)] ?? fallbackStateValues[stateName] ?? FALLBACK_NATIONAL_AVERAGE;
 };
 
 export const subscribeToCarbonAnalytics = (onData: (data: CarbonAnalyticsDoc | null) => void) => {
