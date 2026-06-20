@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
-import indiaSvgMarkup from "../../assets/India.svg?raw";
+import indiaSvgMarkup from "../../assets/indiamap.svg?raw";
 import { fallbackStateValues, subscribeToCarbonAnalytics } from "../../services/carbonAnalytics";
 import type { CarbonAnalyticsDocument as CarbonAnalyticsDoc } from "../../services/carbonAnalyticsContract";
 import { buildIndiaRegionAliasLookup, INDIA_MAP_REGIONS, INDIA_REGION_LOOKUP, normalizeIndiaRegionName } from "../../data/indiaMapRegions";
@@ -87,7 +87,7 @@ export const IndiaCarbonMap: React.FC = () => {
             }}
             onMouseLeave={() => setHovered(null)}
             style={{ width: "100%", minHeight: "220px", padding: 0, background: "none", display: "flex", justifyContent: "center", alignItems: "center", overflow: "visible", maxWidth: "100%" }}
-            dangerouslySetInnerHTML={{ __html: svgMarkup.replace("<svg ", '<svg viewBox="0 0 2500 2843" preserveAspectRatio="xMidYMid meet" width="78%" height="78%" style="display:block;max-width:78%;margin:0 auto;" ') }}
+            dangerouslySetInnerHTML={{ __html: svgMarkup.replace("<svg ", '<svg viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMid meet" width="78%" height="78%" style="display:block;max-width:78%;margin:0 auto;" ') }}
           />
         </div>
       </div>
