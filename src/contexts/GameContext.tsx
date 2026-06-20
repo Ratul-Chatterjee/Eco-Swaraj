@@ -160,7 +160,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loadGameData = async () => {
       if (!user) {
         setBuildings([]);
-        setEcoPoints(100);
+        setEcoPoints(0);
         setStreakCount(0);
         setLastCheckIn(null);
         setDailyTasks(INITIAL_TASKS);
@@ -171,7 +171,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       if (!isFirebaseConfigured || !gameDocRef) {
         setBuildings([{ id: "hq_default", type: "hq", x: 3, y: 3, level: 1 }]);
-        setEcoPoints(100);
+        setEcoPoints(0);
         setStreakCount(0);
         setLastCheckIn(null);
         setDailyTasks(INITIAL_TASKS);
@@ -190,7 +190,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const loadedTasks = normalizeTasks(data.dailyTasks);
 
         setBuildings(loadedBuildings);
-        setEcoPoints(Number.isNaN(loadedPoints) ? 100 : loadedPoints);
+        setEcoPoints(Number.isNaN(loadedPoints) ? 0 : loadedPoints);
         setStreakCount(loadedStreak);
         setLastCheckIn(loadedLastCheckIn);
         setDailyTasks(loadedTasks);
@@ -198,7 +198,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!gameSnap.exists()) {
           await setDoc(gameDocRef, {
             buildings: loadedBuildings,
-            ecoPoints: Number.isNaN(loadedPoints) ? 100 : loadedPoints,
+            ecoPoints: Number.isNaN(loadedPoints) ? 0 : loadedPoints,
             streakCount: loadedStreak,
             lastCheckIn: loadedLastCheckIn,
             dailyTasks: loadedTasks,
@@ -208,7 +208,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err) {
         console.error("Error fetching game data from Firestore:", err);
         setBuildings([{ id: "hq_default", type: "hq", x: 3, y: 3, level: 1 }]);
-        setEcoPoints(100);
+        setEcoPoints(0);
         setStreakCount(0);
         setLastCheckIn(null);
         setDailyTasks(INITIAL_TASKS);

@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { Camera } from "lucide-react";
+import { INDIA_STATE_OPTIONS, getCitiesForState } from "../../data/locationOptions";
 
 export const ProfileSettings: React.FC = () => {
   const { userProfile, updateProfile } = useUser();
@@ -9,6 +10,7 @@ export const ProfileSettings: React.FC = () => {
   const [state, setState] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [preview, setPreview] = useState("");
+  const cityOptions = useMemo(() => getCitiesForState(state), [state]);
   const [isSaving, setIsSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -88,11 +90,21 @@ export const ProfileSettings: React.FC = () => {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", width: "100%" }}>
           <div className="form-group" style={{ width: "100%" }}>
             <label className="form-label">State / Region</label>
-            <input type="text" value={state} onChange={(e) => setState(e.target.value)} className="glass-input" style={{ width: "100%" }} placeholder="Enter your state" />
+            <select value={state} onChange={(e) => { setState(e.target.value); setCity(""); }} className="glass-input" style={{ width: "100%", background: "hsl(222, 47%, 7%)" }}>
+              <option value="">Select your state</option>
+              {INDIA_STATE_OPTIONS.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
           </div>
           <div className="form-group" style={{ width: "100%" }}>
             <label className="form-label">City</label>
-            <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="glass-input" style={{ width: "100%" }} placeholder="Enter your city" />
+            <select value={city} onChange={(e) => setCity(e.target.value)} className="glass-input" style={{ width: "100%", background: "hsl(222, 47%, 7%)" }} disabled={!state}>
+              <option value="">{state ? "Select your city" : "Select a state first"}</option>
+              {cityOptions.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
           </div>
         </div>
 

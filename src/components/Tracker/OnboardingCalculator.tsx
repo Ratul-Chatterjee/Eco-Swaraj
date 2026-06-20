@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { MapPin, Car, Zap, Apple } from "lucide-react";
+import { INDIA_STATE_OPTIONS, getCitiesForState } from "../../data/locationOptions";
 
 export const OnboardingCalculator: React.FC = () => {
   const { updateCalculatorData } = useUser();
   const [step, setStep] = useState<number>(1);
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const cityOptions = useMemo(() => getCitiesForState(selectedState), [selectedState]);
   const [vehicleType, setVehicleType] = useState<string>("none");
   const [mileage, setMileage] = useState<number>(0);
   const [publicTransit, setPublicTransit] = useState<string>("none");
@@ -15,8 +17,9 @@ export const OnboardingCalculator: React.FC = () => {
   const [diet, setDiet] = useState<string>("balanced");
   const [composting, setComposting] = useState<boolean>(false);
 
-  const handleStateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedState(e.target.value);
+    setSelectedCity("");
   };
 
   const calculateFootprint = (): number => {
@@ -106,12 +109,18 @@ export const OnboardingCalculator: React.FC = () => {
 
             <div className="form-group">
               <label className="form-label">State / Region</label>
-              <input className="glass-input" value={selectedState} onChange={handleStateChange} placeholder="Enter your state" style={{ width: "100%" }} />
+              <select className="glass-input" value={selectedState} onChange={handleStateChange} style={{ width: "100%", background: "hsl(222, 47%, 7%)" }}>
+                <option value="">Select your state</option>
+                {INDIA_STATE_OPTIONS.map((state) => <option key={state} value={state}>{state}</option>)}
+              </select>
             </div>
 
             <div className="form-group">
               <label className="form-label">City</label>
-              <input className="glass-input" value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} placeholder="Enter your city" style={{ width: "100%" }} />
+              <select className="glass-input" value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} style={{ width: "100%", background: "hsl(222, 47%, 7%)" }} disabled={!selectedState}>
+                <option value="">{selectedState ? "Select your city" : "Select a state first"}</option>
+                {cityOptions.map((city) => <option key={city} value={city}>{city}</option>)}
+              </select>
             </div>
           </div>
         )}
