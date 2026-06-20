@@ -1,5 +1,6 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
-import indiaSvgMarkup from "../../assets/indiamap.svg?raw";
+import React, { useEffect, useMemo, useState } from "react";
+import indiaRegionSvgMarkup from "../../assets/India.svg?raw";
+import indiaOutlineSvgMarkup from "../../assets/indiamap.svg?raw";
 import { fallbackStateValues, subscribeToCarbonAnalytics } from "../../services/carbonAnalytics";
 import type { CarbonAnalyticsDocument as CarbonAnalyticsDoc } from "../../services/carbonAnalyticsContract";
 import { buildIndiaRegionAliasLookup, INDIA_MAP_REGIONS, INDIA_REGION_LOOKUP, normalizeIndiaRegionName } from "../../data/indiaMapRegions";
@@ -18,6 +19,7 @@ export const IndiaCarbonMap: React.FC = () => {
   const [hovered, setHovered] = useState<MapRegion | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [svgMarkup, setSvgMarkup] = useState("");
+  const [svgSource, setSvgSource] = useState<"regions" | "outline">("regions");
   const [analytics, setAnalytics] = useState<CarbonAnalyticsDoc | null>(null);
 
   useEffect(() => subscribeToCarbonAnalytics(setAnalytics), []);
@@ -40,7 +42,12 @@ export const IndiaCarbonMap: React.FC = () => {
   };
 
   useEffect(() => {
-    const doc = new DOMParser().parseFromString(indiaSvgMarkup, "image/svg+xml");
+    const primaryDoc = new DOMParser().parseFromString(indiaRegionSvgMarkup, "image/svg+xml");
+    const primaryPaths = Array.from(primaryDoc.querySelectorAll("path"));
+    const usePrimary = primaryPaths.length >= INDIA_MAP_REGIONS.length;
+    const doc = usePrimary ? primaryDoc : new DOMParser().parseFromString(indiaOutlineSvgMarkup, "image/svg+xml");
+    const sourceType: "regions" | "outline" = usePrimary ? "regions" : "outline";
+
     Array.from(doc.querySelectorAll("path")).forEach((path, index) => {
       const region = INDIA_REGION_LOOKUP.get(index + 1) ?? INDIA_MAP_REGIONS[index] ?? { name: `Region ${index + 1}` };
       const canonicalName = regionAliasLookup.get(normalizeIndiaRegionName(region.name)) ?? region.name;
@@ -54,7 +61,9 @@ export const IndiaCarbonMap: React.FC = () => {
       path.setAttribute("vector-effect", "non-scaling-stroke");
       path.setAttribute("style", "cursor:pointer;transition:fill .2s ease,stroke .2s ease;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18));");
     });
+
     setSvgMarkup(new XMLSerializer().serializeToString(doc));
+    setSvgSource(sourceType);
   }, [liveNationalAverage, regionAliasLookup, resolveRegionValue, valuesByState]);
 
   return (
@@ -75,20 +84,29 @@ export const IndiaCarbonMap: React.FC = () => {
             </div>
           )}
 
-          <div
-            onMouseMove={(event) => {
-              const target = event.target as SVGElement | null;
-              const regionName = target?.getAttribute?.("data-region-name");
-              const regionValue = target?.getAttribute?.("data-region-value");
-              if (!regionName || !regionValue) return;
-              setHovered({ name: regionName, value: Number(regionValue) });
-              const bounds = (event.currentTarget as HTMLDivElement).getBoundingClientRect();
-              setTooltipPos({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
-            }}
-            onMouseLeave={() => setHovered(null)}
-            style={{ width: "100%", minHeight: "220px", padding: 0, background: "none", display: "flex", justifyContent: "center", alignItems: "center", overflow: "visible", maxWidth: "100%" }}
-            dangerouslySetInnerHTML={{ __html: svgMarkup.replace("<svg ", '<svg viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMid meet" width="78%" height="78%" style="display:block;max-width:78%;margin:0 auto;" ') }}
-          />
+          <div style={{ width: "100%", minHeight: "220px", padding: 0, background: "none", display: "flex", justifyContent: "center", alignItems: "center", overflow: "visible", maxWidth: "100%", position: "relative" }}>
+            <div
+              onMouseMove={(event) => {
+                const target = event.target as SVGElement | null;
+                const regionName = target?.getAttribute?.("data-region-name");
+                const regionValue = target?.getAttribute?.("data-region-value");
+                if (!regionName || !regionValue) return;
+                setHovered({ name: regionName, value: Number(regionValue) });
+                const bounds = (event.currentTarget as HTMLDivElement).getBoundingClientRect();
+                setTooltipPos({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
+              }}
+              onMouseLeave={() => setHovered(null)}
+              style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
+              dangerouslySetInnerHTML={{
+                __html: svgMarkup.replace(
+                  "<svg ",
+                  `<svg preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;max-width:100%;margin:0 auto;" ${
+                    svgSource === "regions" ? 'viewBox="0 0 2500 2843" ' : 'viewBox="0 0 1200 1200" '
+                  }`
+                ),
+              }}
+            />
+          </div>
         </div>
       </div>
     </section>
