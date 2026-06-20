@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+ï»¿import React, { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { db, isFirebaseConfigured } from "../../services/firebase";
 import { collection, doc, onSnapshot, query, setDoc, orderBy } from "firebase/firestore";
@@ -252,7 +252,7 @@ export const EcoActivityPanel: React.FC = () => {
                 {post.comments.map((comment) => (
                   <div key={comment.id} style={{ padding: "10px 12px", borderRadius: "12px", background: "hsla(222, 47%, 7%, 0.45)", border: "1px solid var(--glass-border)" }}>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "4px" }}>
-                      {comment.userName} · {new Date(comment.createdAt).toLocaleString()}
+                      {comment.userName} - {new Date(comment.createdAt).toLocaleString()}
                     </div>
                     <div style={{ whiteSpace: "pre-wrap" }}>{comment.content}</div>
                   </div>
@@ -275,7 +275,7 @@ export const EcoActivityPanel: React.FC = () => {
           title="Top 10 Cities"
           icon={<MapPin color="var(--color-primary)" size={20} />}
           description="Lower values are better here too. These rankings are driven by the live analytics feed stored in Firestore."
-          items={topCities.length ? topCities.map((city, index) => ({ label: `${index + 1}. ${city.name}`, value: `${city.state} · ${city.value} t/yr` })) : [{ label: "No live city data yet", value: "Connect your analytics endpoint" }]}
+          items={topCities.length ? topCities.map((city, index) => ({ label: `${index + 1}. ${city.name}`, value: `${city.state} - ${city.value} t/yr` })) : [{ label: "No live city data yet", value: "Connect your analytics endpoint" }]}
         />
       </aside>
 

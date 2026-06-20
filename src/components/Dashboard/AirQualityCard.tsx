@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+ï»¿import React, { useEffect, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { fetchAirQuality } from "../../services/airQuality";
 import type { AirQualityMetrics } from "../../services/airQuality";
@@ -92,15 +92,15 @@ export const AirQualityCard: React.FC = () => {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", background: "hsla(222, 47%, 7%, 0.4)", padding: "12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--glass-border)", textAlign: "center" }}>
             <div>
               <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase" }}>PM2.5</div>
-              <div style={{ fontSize: "0.95rem", fontWeight: "600", color: "#fff", marginTop: "2px" }}>{aqiData.pm25} <span style={{ fontSize: "0.65rem", fontWeight: "400", color: "var(--text-muted)" }}>µg</span></div>
+              <div style={{ fontSize: "0.95rem", fontWeight: "600", color: "#fff", marginTop: "2px" }}>{aqiData.pm25} <span style={{ fontSize: "0.65rem", fontWeight: "400", color: "var(--text-muted)" }}>ug</span></div>
             </div>
             <div>
               <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase" }}>PM10</div>
-              <div style={{ fontSize: "0.95rem", fontWeight: "600", color: "#fff", marginTop: "2px" }}>{aqiData.pm10} <span style={{ fontSize: "0.65rem", fontWeight: "400", color: "var(--text-muted)" }}>µg</span></div>
+              <div style={{ fontSize: "0.95rem", fontWeight: "600", color: "#fff", marginTop: "2px" }}>{aqiData.pm10} <span style={{ fontSize: "0.65rem", fontWeight: "400", color: "var(--text-muted)" }}>ug</span></div>
             </div>
             <div>
               <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Ozone</div>
-              <div style={{ fontSize: "0.95rem", fontWeight: "600", color: "#fff", marginTop: "2px" }}>{aqiData.o3} <span style={{ fontSize: "0.65rem", fontWeight: "400", color: "var(--text-muted)" }}>µg</span></div>
+              <div style={{ fontSize: "0.95rem", fontWeight: "600", color: "#fff", marginTop: "2px" }}>{aqiData.o3} <span style={{ fontSize: "0.65rem", fontWeight: "400", color: "var(--text-muted)" }}>ug</span></div>
             </div>
           </div>
 
