@@ -12,7 +12,7 @@ import {
 } from "../services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 
 export interface UserProfile {
   uid: string;
@@ -151,6 +151,31 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => unsubscribe();
   }, []);
+
+  // Listen to real-time changes on the logged-in user's profile document
+  useEffect(() => {
+    if (!isFirebaseConfigured || !db || !user) {
+      return;
+    }
+
+    const userDocRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const profileData = normalizeProfile(snapshot.data() as UserProfile);
+          setUserProfile(profileData);
+          // Dispatch window event for other non-context listeners (e.g. CarbonStats)
+          window.dispatchEvent(new Event("profile-updated"));
+        }
+      },
+      (err) => {
+        console.error("Error listening to user profile changes in UserProvider:", err);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
 
   const loginWithEmail = async (email: string, pass: string) => {
     setError(null);
