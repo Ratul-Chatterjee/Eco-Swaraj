@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { db, isFirebaseConfigured } from "../../services/firebase";
-import { collection, doc, onSnapshot, query, setDoc, orderBy } from "firebase/firestore";
+import { collection, doc, onSnapshot, query, setDoc, updateDoc, orderBy, arrayUnion, arrayRemove } from "firebase/firestore";
 import { MessageSquare, ThumbsUp, ThumbsDown, Send, Trophy, MapPin, Users } from "lucide-react";
 import { subscribeToCarbonAnalytics, type CarbonAnalyticsDoc } from "../../services/carbonAnalytics";
 
@@ -66,10 +66,10 @@ export const EcoActivityPanel: React.FC = () => {
   }, [analytics]);
 
   const rankedUsers = useMemo<RankedUser[]>(() => {
-    // Sort by lowest carbon score (less carbon emissions)
-    return [...users]
-      .sort((a, b) => a.carbonScore - b.carbonScore || b.completedTasks - a.completedTasks || b.points - a.points)
-      .slice(0, 10);
+    // Sort by lowest carbon score (less carbon emissions), then activity, then points.
+    return [...users].sort(
+      (a, b) => a.carbonScore - b.carbonScore || b.completedTasks - a.completedTasks || b.points - a.points
+    );
   }, [users]);
 
   const persistPosts = async (nextPosts: CommunityPost[]) => {
@@ -163,45 +163,36 @@ export const EcoActivityPanel: React.FC = () => {
   };
 
   const votePost = async (postId: string, direction: "up" | "down") => {
-    if (!user) return;
-    const nextPosts = posts.map((post) => {
-      if (post.id !== postId) return post;
-      const alreadyUpvoted = post.upvotes.includes(user.uid);
-      const alreadyDownvoted = post.downvotes.includes(user.uid);
+    if (!user || !db) return;
 
-      let upvotes = post.upvotes.filter((id) => id !== user.uid);
-      let downvotes = post.downvotes.filter((id) => id !== user.uid);
+    const post = posts.find((entry) => entry.id === postId);
+    if (!post) return;
 
-      if (direction === "up") {
-        if (alreadyUpvoted) {
-          // toggle off
-        } else {
-          upvotes.push(user.uid);
-        }
-      }
+    const postRef = doc(db, "communityPosts", postId);
+    const uid = user.uid;
 
-      if (direction === "down") {
-        if (alreadyDownvoted) {
-          // toggle off
-        } else {
-          downvotes.push(user.uid);
-        }
-      }
+    if (direction === "up") {
+      await updateDoc(postRef, {
+        upvotes: post.upvotes.includes(uid) ? arrayRemove(uid) : arrayUnion(uid),
+        downvotes: arrayRemove(uid)
+      });
+      return;
+    }
 
-      return { ...post, upvotes, downvotes };
+    await updateDoc(postRef, {
+      downvotes: post.downvotes.includes(uid) ? arrayRemove(uid) : arrayUnion(uid),
+      upvotes: arrayRemove(uid)
     });
-    await persistPosts(nextPosts);
   };
 
   const addComment = async (postId: string) => {
-    if (!user || !userProfile) return;
-    
-    // Clear previous errors for this post
+    if (!user || !userProfile || !db) return;
+
     setCommentErrors((prev) => ({ ...prev, [postId]: "" }));
-    
+
     const raw = (commentDrafts[postId] || "").trim();
     if (!raw) return;
-    
+
     const wordCount = getWordCount(raw);
     if (wordCount > 500) {
       setCommentErrors((prev) => ({
@@ -211,20 +202,26 @@ export const EcoActivityPanel: React.FC = () => {
       return;
     }
 
-    const nextPosts = posts.map((post) => {
-      if (post.id !== postId) return post;
-      const nextComment: CommunityComment = {
-        id: `comment_${Date.now()}`,
-        userId: user.uid,
-        userName: userProfile.displayName || "Eco Citizen",
-        content: raw,
-        createdAt: new Date().toISOString()
-      };
-      return { ...post, comments: [...post.comments, nextComment] };
-    });
+    const nextComment: CommunityComment = {
+      id: `comment_${Date.now()}`,
+      userId: user.uid,
+      userName: userProfile.displayName || "Eco Citizen",
+      content: raw,
+      createdAt: new Date().toISOString()
+    };
 
-    await persistPosts(nextPosts);
-    setCommentDrafts((drafts) => ({ ...drafts, [postId]: "" }));
+    try {
+      await updateDoc(doc(db, "communityPosts", postId), {
+        comments: arrayUnion(nextComment)
+      });
+      setCommentDrafts((drafts) => ({ ...drafts, [postId]: "" }));
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+      setCommentErrors((prev) => ({
+        ...prev,
+        [postId]: "Could not save your comment right now. Please try again."
+      }));
+    }
   };
 
   const getScore = (post: CommunityPost) => post.upvotes.length - post.downvotes.length;
