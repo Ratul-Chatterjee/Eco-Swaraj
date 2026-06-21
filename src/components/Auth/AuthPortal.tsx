@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { Mail, Lock, User, ShieldCheck } from "lucide-react";
 
@@ -21,6 +21,15 @@ export const AuthPortal: React.FC = () => {
   const [authError, setAuthError] = useState<string | null>(null);
   const [verificationSent, setVerificationSent] = useState<boolean>(false);
   const [verificationEmail, setVerificationEmail] = useState<string>("");
+  const [showVerificationFlow, setShowVerificationFlow] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (user && !user.emailVerified) {
+      setShowVerificationFlow(true);
+    } else if (user && user.emailVerified) {
+      setShowVerificationFlow(false);
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +52,7 @@ export const AuthPortal: React.FC = () => {
         if (err.message.includes("verification link has been sent")) {
           setVerificationEmail(email);
           setVerificationSent(true);
+          setShowVerificationFlow(true);
         } else {
           setAuthError(err.message || "Registration failed.");
         }
@@ -51,7 +61,13 @@ export const AuthPortal: React.FC = () => {
       try {
         await loginWithEmail(email, password);
       } catch (err: any) {
-        setAuthError(err.message || "Login failed.");
+        if (err.message?.includes("not verified") || err.message === "unverified-email") {
+          setVerificationEmail(email);
+          setVerificationSent(true);
+          setShowVerificationFlow(true);
+        } else {
+          setAuthError(err.message || "Login failed.");
+        }
       }
     }
   };
@@ -81,8 +97,8 @@ export const AuthPortal: React.FC = () => {
     }
   };
 
-  // If user exists but is not verified, show verification screen
-  if (verificationSent || (user && !user.emailVerified)) {
+  // If the user is in the verification flow, show that screen.
+  if (showVerificationFlow && (verificationSent || (user && !user.emailVerified))) {
     const targetEmail = user?.email || verificationEmail;
     return (
       <div style={{
@@ -157,6 +173,7 @@ export const AuthPortal: React.FC = () => {
             <button 
               onClick={() => {
                 setVerificationSent(false);
+                setShowVerificationFlow(false);
                 setAuthError(null);
               }} 
               className="btn btn-secondary"
