@@ -468,7 +468,7 @@ export const EcoActivityPanel: React.FC = () => {
               <h4 style={{ fontSize: "1.1rem", fontWeight: "700", margin: 0 }}>Least Polluted States</h4>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px" }}>Top 10 states in India (avg tCO2e/yr) - 2024</div>
               <a href="https://kerala.data.gov.in/resource/stateut-wise-details-forest-cover-and-tree-cover-india-indian-state-forest-report-isfr" target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-primary)", textDecoration: "underline", fontSize: "0.7rem", marginTop: "2px", display: "inline-block" }}>
-                Source: https://kerala.data.gov.in/resource/stateut-wise-details-forest-cover-and-tree-cover-india-indian-state-forest-report-isfr
+                Source: kerela.data.gov.in
               </a>
             </div>
           </div>
@@ -539,7 +539,7 @@ export const EcoActivityPanel: React.FC = () => {
               <h4 style={{ fontSize: "1.1rem", fontWeight: "700", margin: 0 }}>Least Polluted Cities</h4>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px" }}>Top 10 cities in India (avg tCO2e/yr) - 2026</div>
               <a href="https://www.data.gov.in/resource/real-time-air-quality-index-various-locations" target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-primary)", textDecoration: "underline", fontSize: "0.7rem", marginTop: "2px", display: "inline-block" }}>
-                Source: https://www.data.gov.in/resource/real-time-air-quality-index-various-locations
+                Source: data.gov.in
               </a>
             </div>
           </div>
