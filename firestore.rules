@@ -1,14 +1,22 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only read and write their own documents
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Allow recursive access to user subcollections (like city state, daily logs, etc.)
       match /{document=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+    }
+
+    match /communityPosts/{postId} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+    }
+
+    match /publicAnalytics/{documentId} {
+      allow read: if true;
+      allow write: if false;
     }
   }
 }

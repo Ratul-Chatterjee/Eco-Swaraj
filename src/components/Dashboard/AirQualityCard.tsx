@@ -1,37 +1,51 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { fetchAirQuality } from "../../services/airQuality";
 import type { AirQualityMetrics } from "../../services/airQuality";
 import { Wind, RefreshCw, AlertCircle } from "lucide-react";
 
 async function geocodeLocation(city: string, state: string) {
-  const query = [city, state, "India"].filter(Boolean).join(", ");
-  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`;
-  const response = await fetch(url);
-  if (!response.ok) return null;
-  const data = await response.json();
-  const result = data?.results?.[0];
-  if (!result) return null;
-  return { lat: result.latitude as number, lng: result.longitude as number };
+  const queries = [
+    [city, state, "India"].filter(Boolean).join(", "),
+    [city, "India"].filter(Boolean).join(", "),
+    [state, "India"].filter(Boolean).join(", ")
+  ].filter(Boolean);
+
+  for (const query of queries) {
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`;
+    const response = await fetch(url);
+    if (!response.ok) continue;
+    const data = await response.json();
+    const result = data?.results?.[0];
+    if (result) {
+      return { lat: result.latitude as number, lng: result.longitude as number };
+    }
+  }
+
+  return null;
 }
 
 export const AirQualityCard: React.FC = () => {
   const { userProfile } = useUser();
   const [aqiData, setAqiData] = useState<AirQualityMetrics | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const city = userProfile?.city;
-  const state = userProfile?.state;
+  const city = userProfile?.city?.trim();
+  const state = userProfile?.state?.trim();
 
   const loadAQI = async () => {
-    if (!city || !state) {
+    if (!city && !state) {
       setLoading(false);
+      setAqiData(null);
+      setError("Add your city and state in your profile to load local air quality.");
       return;
     }
 
     setLoading(true);
+    setError(null);
     try {
-      const coords = await geocodeLocation(city, state);
+      const coords = await geocodeLocation(city || "", state || "");
       if (!coords) {
         throw new Error("Unable to geocode user location.");
       }
@@ -40,6 +54,7 @@ export const AirQualityCard: React.FC = () => {
     } catch (err) {
       console.error("AQI load error:", err);
       setAqiData(null);
+      setError("Unable to load live air quality for this profile location right now.");
     } finally {
       setLoading(false);
     }
@@ -49,7 +64,7 @@ export const AirQualityCard: React.FC = () => {
     void loadAQI();
   }, [city, state]);
 
-  if (!city || !state) return null;
+  if (!city && !state) return null;
 
   return (
     <div className="glass-card" style={{ display: "flex", flexDirection: "column", gap: "16px", position: "relative", overflow: "hidden" }}>
@@ -80,7 +95,8 @@ export const AirQualityCard: React.FC = () => {
             <div>
               <div style={{ fontSize: "1.2rem", fontWeight: "700", color: aqiData.color }}>{aqiData.label}</div>
               <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "4px" }}>
-                Active in <strong>{city}</strong>, {state}
+                Active in <strong>{city || state}</strong>
+                {city && state ? `, ${state}` : ""}
               </div>
             </div>
           </div>
@@ -114,8 +130,9 @@ export const AirQualityCard: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-          Unable to retrieve air quality data.
+        <div style={{ color: "var(--text-muted)", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: 8 }}>
+          <AlertCircle size={14} />
+          {error ?? "Unable to retrieve air quality data."}
         </div>
       )}
     </div>

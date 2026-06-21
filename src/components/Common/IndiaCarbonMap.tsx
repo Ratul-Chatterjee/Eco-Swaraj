@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import indiaRegionSvgMarkup from "../../assets/India.svg?raw";
 import indiaOutlineSvgMarkup from "../../assets/indiamap.svg?raw";
-import { fallbackStateValues, subscribeToCarbonAnalytics } from "../../services/carbonAnalytics";
+import { subscribeToCarbonAnalytics } from "../../services/carbonAnalytics";
 import type { CarbonAnalyticsDocument as CarbonAnalyticsDoc } from "../../services/carbonAnalyticsContract";
 import { buildIndiaRegionAliasLookup, INDIA_MAP_REGIONS, INDIA_REGION_LOOKUP, normalizeIndiaRegionName } from "../../data/indiaMapRegions";
 
@@ -28,9 +28,8 @@ export const IndiaCarbonMap: React.FC = () => {
   const liveNationalAverage = analytics?.nationalAverage ?? FALLBACK_NATIONAL_AVERAGE;
 
   const valuesByState = useMemo(() => {
-    const merged = { ...fallbackStateValues, ...(analytics?.stateValues ?? {}) };
     const normalized = new Map<string, number>();
-    Object.entries(merged).forEach(([key, value]) => {
+    Object.entries(analytics?.stateValues ?? {}).forEach(([key, value]) => {
       normalized.set(normalizeIndiaRegionName(key), value);
     });
     return normalized;

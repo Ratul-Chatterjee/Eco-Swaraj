@@ -1,7 +1,8 @@
-﻿import { db, isFirebaseConfigured } from "./firebase";
+import { db, isFirebaseConfigured } from "./firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import type { CarbonAnalyticsDocument as SharedCarbonAnalyticsDoc } from "./carbonAnalyticsContract";
 import { normalizeIndiaRegionName } from "../data/indiaMapRegions";
+import { fetchLiveCarbonAnalytics } from "./liveAnalyticsSource";
 
 export type CarbonAnalyticsStateMap = Record<string, number>;
 export type CarbonAnalyticsDoc = SharedCarbonAnalyticsDoc;
@@ -52,8 +53,22 @@ export const getFallbackStateValue = (stateName: string) => {
 };
 
 export const subscribeToCarbonAnalytics = (onData: (data: CarbonAnalyticsDoc | null) => void) => {
+  let liveFallbackUsed = false;
+
+  const pullLiveFallback = async () => {
+    if (liveFallbackUsed) return;
+    liveFallbackUsed = true;
+    try {
+      const liveData = await fetchLiveCarbonAnalytics();
+      onData(liveData);
+    } catch (error) {
+      console.error("Failed to fetch live carbon analytics directly:", error);
+      onData(null);
+    }
+  };
+
   if (!isFirebaseConfigured || !db) {
-    onData(null);
+    void pullLiveFallback();
     return () => undefined;
   }
 
@@ -61,11 +76,15 @@ export const subscribeToCarbonAnalytics = (onData: (data: CarbonAnalyticsDoc | n
   return onSnapshot(
     ref,
     (snapshot) => {
-      onData(snapshot.exists() ? (snapshot.data() as CarbonAnalyticsDoc) : null);
+      if (snapshot.exists()) {
+        onData(snapshot.data() as CarbonAnalyticsDoc);
+        return;
+      }
+      void pullLiveFallback();
     },
     (error) => {
       console.error("Failed to subscribe to carbon analytics:", error);
-      onData(null);
+      void pullLiveFallback();
     }
   );
 };
