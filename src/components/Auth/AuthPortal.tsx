@@ -169,6 +169,19 @@ export const AuthPortal: React.FC = () => {
             >
               {loading ? "Sending..." : "Resend verification email"}
             </button>
+
+            <button
+              onClick={() => {
+                setVerificationSent(false);
+                setShowVerificationFlow(false);
+                setAuthError(null);
+                window.dispatchEvent(new Event("eco-swaraj:close-auth"));
+              }}
+              className="btn btn-secondary"
+              style={{ width: "100%" }}
+            >
+              Back to Landing Page
+            </button>
             
             <button 
               onClick={() => {
@@ -317,7 +330,7 @@ export const AuthPortal: React.FC = () => {
           Continue with Google
         </button>
 
-        <div style={{ textAlign: "center", marginTop: "10px" }}>
+        <div style={{ textAlign: "center", marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
           <button
             onClick={() => {
               setIsSignUp(!isSignUp);
@@ -334,6 +347,21 @@ export const AuthPortal: React.FC = () => {
             }}
           >
             {isSignUp ? "Already have an account? Sign In" : "New to Eco-Swaraj? Create an account"}
+          </button>
+          <button
+            onClick={() => {
+              window.dispatchEvent(new Event("eco-swaraj:close-auth"));
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+              fontFamily: "var(--font-display)",
+              fontSize: "0.9rem"
+            }}
+          >
+            ← Back to Landing Page
           </button>
         </div>
       </div>

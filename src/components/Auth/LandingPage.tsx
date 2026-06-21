@@ -18,12 +18,15 @@ export const LandingPage: React.FC = () => {
     };
 
     const onOpenAuth = () => openAuthModal();
+    const onCloseAuth = () => closeAuthModal();
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("eco-swaraj:open-auth", onOpenAuth as EventListener);
+    window.addEventListener("eco-swaraj:close-auth", onCloseAuth as EventListener);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("eco-swaraj:open-auth", onOpenAuth as EventListener);
+      window.removeEventListener("eco-swaraj:close-auth", onCloseAuth as EventListener);
     };
   }, []);
 
