@@ -7,6 +7,9 @@ import { buildIndiaRegionAliasLookup, INDIA_MAP_REGIONS, INDIA_REGION_LOOKUP, no
 
 const FALLBACK_NATIONAL_AVERAGE = 1.8;
 
+const STATE_DATA_SOURCE_URL = "https://www.data.gov.in/search?query=india%20state%20carbon%20footprint%202014";
+const CITY_DATA_SOURCE_URL = "https://www.data.gov.in/search?query=india%20city%20carbon%20footprint%202014";
+
 type MapRegion = { name: string; value: number };
 
 const getBand = (value: number) => {
@@ -73,6 +76,17 @@ export const IndiaCarbonMap: React.FC = () => {
           <p style={{ marginTop: 8, color: "var(--text-secondary)", maxWidth: 860, marginLeft: "auto", marginRight: "auto" }}>
             Hover any state or union territory to see its yearly per-capita carbon footprint. Green marks lower emissions than the India average, yellow is near the average, and red is higher.
           </p>
+          <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6, alignItems: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
+            <div>Map and statistics are shown using 2014 data.</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", justifyContent: "center" }}>
+              <a href={STATE_DATA_SOURCE_URL} target="_blank" rel="noreferrer" style={{ color: "var(--color-primary)" }}>
+                State data source URL
+              </a>
+              <a href={CITY_DATA_SOURCE_URL} target="_blank" rel="noreferrer" style={{ color: "var(--color-primary)" }}>
+                City data source URL
+              </a>
+            </div>
+          </div>
         </div>
 
         <div style={{ position: "relative", width: "100%" }}>
