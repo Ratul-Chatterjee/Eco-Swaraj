@@ -4,19 +4,11 @@ import { Leaf, Wind, Globe, TrendingDown, ArrowRight, ShieldAlert, Award } from 
 import { SiteFooter } from "../Common/SiteFooter";
 import { IndiaCarbonMap } from "../Common/IndiaCarbonMap";
 
-interface LandingPageProps {
-  forceAuthOpen?: boolean;
-}
-
-export const LandingPage: React.FC<LandingPageProps> = ({ forceAuthOpen = false }) => {
-  const [showAuthModal, setShowAuthModal] = useState<boolean>(forceAuthOpen);
+export const LandingPage: React.FC = () => {
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
   const openAuthModal = () => setShowAuthModal(true);
   const closeAuthModal = () => setShowAuthModal(false);
-
-  useEffect(() => {
-    setShowAuthModal(forceAuthOpen);
-  }, [forceAuthOpen]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

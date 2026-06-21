@@ -50,12 +50,8 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (!user) {
+  if (!user || (user && !user.emailVerified)) {
     return <LandingPage />;
-  }
-
-  if (user && !user.emailVerified) {
-    return <LandingPage forceAuthOpen />;
   }
 
   if (!userProfile || !userProfile.isCalculated) {
