@@ -9,6 +9,7 @@ export const AuthPortal: React.FC = () => {
     loginWithGoogle, 
     user, 
     refreshAuthStatus,
+    resendVerificationEmail,
     loading 
   } = useUser();
 
@@ -67,8 +68,17 @@ export const AuthPortal: React.FC = () => {
   const checkVerification = async () => {
     setAuthError(null);
     await refreshAuthStatus();
-    // If user is verified and loaded, UserContext will set userProfile and route them.
-    // If not, we tell them to check again.
+  };
+
+  const handleResendVerification = async () => {
+    setAuthError(null);
+    try {
+      await resendVerificationEmail();
+      setVerificationSent(true);
+      setVerificationEmail(user?.email || email);
+    } catch (err: any) {
+      setAuthError(err.message || "Failed to resend verification email.");
+    }
   };
 
   // If user exists but is not verified, show verification screen
@@ -126,6 +136,15 @@ export const AuthPortal: React.FC = () => {
             style={{ width: "100%" }}
           >
             {loading ? "Checking..." : "I have verified my email"}
+          </button>
+
+          <button
+            onClick={handleResendVerification}
+            disabled={loading}
+            className="btn btn-secondary"
+            style={{ width: "100%" }}
+          >
+            {loading ? "Sending..." : "Resend verification email"}
           </button>
           
           <button 

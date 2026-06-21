@@ -52,6 +52,7 @@ interface UserContextType {
   signUpWithEmail: (email: string, pass: string, name: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logoutUser: () => Promise<void>;
+  resendVerificationEmail: () => Promise<void>;
   updateCalculatorData: (stateName: string, cityName: string, data: any, carbonScore: number) => Promise<void>;
   refreshAuthStatus: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
@@ -275,6 +276,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resendVerificationEmail = async () => {
+    if (!auth?.currentUser) return;
+    try {
+      await sendEmailVerification(auth.currentUser);
+    } catch (err) {
+      console.error("Error resending verification email:", err);
+      throw err;
+    }
+  };
+
   // Update user profile fields (name, city, state, photo)
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!userProfile) return;
@@ -330,6 +341,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signUpWithEmail,
       loginWithGoogle,
       logoutUser,
+      resendVerificationEmail,
       updateCalculatorData,
       refreshAuthStatus,
       updateProfile
