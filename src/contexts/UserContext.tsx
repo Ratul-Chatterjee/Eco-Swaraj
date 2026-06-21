@@ -24,6 +24,7 @@ export interface UserProfile {
   carbonScore: number;       // Annual footprint in tonnes CO2
   baselineScore: number;     // Starting calculator score
   points: number;            // Current experience points / coin balance
+  completedTasks: number;    // Lifetime checklist tasks completed
   isCalculated: boolean;     // Has completed onboarding calculator
   calculatorData: {
     transport: {
@@ -81,6 +82,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     carbonScore: 0,
     baselineScore: 0,
     points: 0,
+    completedTasks: 0,
     isCalculated: false,
     calculatorData: null
   });
@@ -88,6 +90,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const normalizeProfile = (profile: UserProfile): UserProfile => ({
     ...profile,
     points: Number(profile.points) || 0,
+    completedTasks: Number(profile.completedTasks) || 0,
     carbonScore: Number(profile.carbonScore) || 0,
     baselineScore: Number(profile.baselineScore) || 0,
     photoUrl: profile.photoUrl || ""
