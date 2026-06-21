@@ -1,7 +1,7 @@
 export type AnalyticsStateEntry = { state: string; value: number };
 export type AnalyticsCityEntry = { state: string; city: string; value: number };
 
-export const ANALYTICS_DATASET_YEAR = 2014;
+export const ANALYTICS_DATASET_YEAR = 2026;
 
 export const INDIA_STATE_ANALYTICS: AnalyticsStateEntry[] = [
   { state: "Maharashtra", value: 2.0 },

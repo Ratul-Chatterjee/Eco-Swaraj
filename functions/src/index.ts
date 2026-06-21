@@ -10,7 +10,7 @@ const DOC_PATH = "publicAnalytics/indiaCarbon";
 
 const FALLBACK_SOURCE = {
   provider: "Eco-Swaraj dataset pipeline",
-  dataset: "India carbon analytics dataset (2014)",
+  dataset: "India carbon analytics dataset (2026)",
   generatedAt: new Date().toISOString(),
   freshness: "static snapshot"
 };

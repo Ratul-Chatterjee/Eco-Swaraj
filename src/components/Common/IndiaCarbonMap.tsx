@@ -1,14 +1,53 @@
 import React, { useEffect, useMemo, useState } from "react";
-import indiaRegionSvgMarkup from "../../assets/India.svg?raw";
-import indiaOutlineSvgMarkup from "../../assets/indiamap.svg?raw";
+import indiaSvgMarkup from "../../assets/indiamap.svg?raw";
 import { subscribeToCarbonAnalytics } from "../../services/carbonAnalytics";
 import type { CarbonAnalyticsDocument as CarbonAnalyticsDoc } from "../../services/carbonAnalyticsContract";
-import { buildIndiaRegionAliasLookup, INDIA_MAP_REGIONS, INDIA_REGION_LOOKUP, normalizeIndiaRegionName } from "../../data/indiaMapRegions";
+import { normalizeIndiaRegionName } from "../../data/indiaMapRegions";
 
 const FALLBACK_NATIONAL_AVERAGE = 1.8;
+const LANDING_MAP_DATA_YEAR = 2026;
 
-const STATE_DATA_SOURCE_URL = "https://www.data.gov.in/search?query=india%20state%20carbon%20footprint%202014";
-const CITY_DATA_SOURCE_URL = "https://www.data.gov.in/search?query=india%20city%20carbon%20footprint%202014";
+const STATE_DATA_SOURCE_URL = "https://www.data.gov.in/";
+const CITY_DATA_SOURCE_URL = "https://www.data.gov.in/";
+
+const REGION_CODE_TO_NAME: Record<string, string> = {
+  "IN-AN": "Andaman and Nicobar Islands",
+  "IN-AP": "Andhra Pradesh",
+  "IN-AR": "Arunachal Pradesh",
+  "IN-AS": "Assam",
+  "IN-BR": "Bihar",
+  "IN-CH": "Chandigarh",
+  "IN-CT": "Chhattisgarh",
+  "IN-DH": "Dadra and Nagar Haveli and Daman and Diu",
+  "IN-DL": "Delhi (NCT)",
+  "IN-GA": "Goa",
+  "IN-GJ": "Gujarat",
+  "IN-HP": "Himachal Pradesh",
+  "IN-HR": "Haryana",
+  "IN-JH": "Jharkhand",
+  "IN-JK": "Jammu & Kashmir",
+  "IN-KA": "Karnataka",
+  "IN-KL": "Kerala",
+  "IN-LA": "Ladakh",
+  "IN-LD": "Lakshadweep",
+  "IN-MH": "Maharashtra",
+  "IN-ML": "Meghalaya",
+  "IN-MN": "Manipur",
+  "IN-MP": "Madhya Pradesh",
+  "IN-MZ": "Mizoram",
+  "IN-NL": "Nagaland",
+  "IN-OR": "Odisha",
+  "IN-PB": "Punjab",
+  "IN-PY": "Puducherry",
+  "IN-RJ": "Rajasthan",
+  "IN-SK": "Sikkim",
+  "IN-TG": "Telangana",
+  "IN-TN": "Tamil Nadu",
+  "IN-TR": "Tripura",
+  "IN-UP": "Uttar Pradesh",
+  "IN-UT": "Uttarakhand",
+  "IN-WB": "West Bengal"
+};
 
 type MapRegion = { name: string; value: number };
 
@@ -22,12 +61,10 @@ export const IndiaCarbonMap: React.FC = () => {
   const [hovered, setHovered] = useState<MapRegion | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [svgMarkup, setSvgMarkup] = useState("");
-  const [svgSource, setSvgSource] = useState<"regions" | "outline">("regions");
   const [analytics, setAnalytics] = useState<CarbonAnalyticsDoc | null>(null);
 
   useEffect(() => subscribeToCarbonAnalytics(setAnalytics), []);
 
-  const regionAliasLookup = useMemo(() => buildIndiaRegionAliasLookup(), []);
   const liveNationalAverage = analytics?.nationalAverage ?? FALLBACK_NATIONAL_AVERAGE;
 
   const valuesByState = useMemo(() => {
@@ -39,34 +76,28 @@ export const IndiaCarbonMap: React.FC = () => {
   }, [analytics]);
 
   const resolveRegionValue = (regionName: string) => {
-    const canonical = regionAliasLookup.get(normalizeIndiaRegionName(regionName)) ?? regionName;
-    return valuesByState.get(normalizeIndiaRegionName(canonical)) ?? valuesByState.get(normalizeIndiaRegionName(regionName)) ?? liveNationalAverage;
+    return valuesByState.get(normalizeIndiaRegionName(regionName)) ?? liveNationalAverage;
   };
 
   useEffect(() => {
-    const primaryDoc = new DOMParser().parseFromString(indiaRegionSvgMarkup, "image/svg+xml");
-    const primaryPaths = Array.from(primaryDoc.querySelectorAll("path"));
-    const usePrimary = primaryPaths.length >= INDIA_MAP_REGIONS.length;
-    const doc = usePrimary ? primaryDoc : new DOMParser().parseFromString(indiaOutlineSvgMarkup, "image/svg+xml");
-    const sourceType: "regions" | "outline" = usePrimary ? "regions" : "outline";
+    const doc = new DOMParser().parseFromString(indiaSvgMarkup, "image/svg+xml");
 
-    Array.from(doc.querySelectorAll("path")).forEach((path, index) => {
-      const region = INDIA_REGION_LOOKUP.get(index + 1) ?? INDIA_MAP_REGIONS[index] ?? { name: `Region ${index + 1}` };
-      const canonicalName = regionAliasLookup.get(normalizeIndiaRegionName(region.name)) ?? region.name;
+    Array.from(doc.querySelectorAll("path.region[id^='IN-']")).forEach((path) => {
+      const regionCode = path.getAttribute("id") ?? "";
+      const canonicalName = REGION_CODE_TO_NAME[regionCode] ?? regionCode;
       const value = resolveRegionValue(canonicalName);
       const band = getBand(value);
       path.setAttribute("data-region-name", canonicalName);
       path.setAttribute("data-region-value", String(value));
       path.setAttribute("fill", band.fill);
       path.setAttribute("stroke", band.stroke);
-      path.setAttribute("stroke-width", "2.5");
+      path.setAttribute("stroke-width", "1.6");
       path.setAttribute("vector-effect", "non-scaling-stroke");
       path.setAttribute("style", "cursor:pointer;transition:fill .2s ease,stroke .2s ease;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18));");
     });
 
     setSvgMarkup(new XMLSerializer().serializeToString(doc));
-    setSvgSource(sourceType);
-  }, [liveNationalAverage, regionAliasLookup, resolveRegionValue, valuesByState]);
+  }, [liveNationalAverage, valuesByState]);
 
   return (
     <section style={{ width: "100%", padding: "0 0 24px", background: "none" }}>
@@ -77,7 +108,7 @@ export const IndiaCarbonMap: React.FC = () => {
             Hover any state or union territory to see its yearly per-capita carbon footprint. Green marks lower emissions than the India average, yellow is near the average, and red is higher.
           </p>
           <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6, alignItems: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
-            <div>Map and statistics are shown using 2014 data.</div>
+            <div>Map and statistics are shown using {LANDING_MAP_DATA_YEAR} data.</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", justifyContent: "center" }}>
               <a href={STATE_DATA_SOURCE_URL} target="_blank" rel="noreferrer" style={{ color: "var(--color-primary)" }}>
                 State data source URL
@@ -113,9 +144,7 @@ export const IndiaCarbonMap: React.FC = () => {
               dangerouslySetInnerHTML={{
                 __html: svgMarkup.replace(
                   "<svg ",
-                  `<svg preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;max-width:100%;margin:0 auto;" ${
-                    svgSource === "regions" ? 'viewBox="0 0 2500 2843" ' : 'viewBox="0 0 1200 1200" '
-                  }`
+                  `<svg preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;max-width:100%;margin:0 auto;" viewBox="0 0 1200 1200" `
                 ),
               }}
             />
