@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { Mail, Lock, User, ShieldCheck } from "lucide-react";
 
@@ -22,14 +22,6 @@ export const AuthPortal: React.FC = () => {
   const [verificationSent, setVerificationSent] = useState<boolean>(false);
   const [verificationEmail, setVerificationEmail] = useState<string>("");
   const [showVerificationFlow, setShowVerificationFlow] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (user && !user.emailVerified) {
-      setShowVerificationFlow(true);
-    } else if (user && user.emailVerified) {
-      setShowVerificationFlow(false);
-    }
-  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +66,8 @@ export const AuthPortal: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     setAuthError(null);
+    setVerificationSent(false);
+    setShowVerificationFlow(false);
     try {
       await loginWithGoogle();
     } catch (err: any) {
@@ -97,8 +91,8 @@ export const AuthPortal: React.FC = () => {
     }
   };
 
-  // If the user is in the verification flow, show that screen.
-  if (showVerificationFlow && (verificationSent || (user && !user.emailVerified))) {
+  // Show the verification screen only after a real signup/login verification trigger.
+  if (showVerificationFlow && verificationSent) {
     const targetEmail = user?.email || verificationEmail;
     return (
       <div style={{
@@ -188,6 +182,8 @@ export const AuthPortal: React.FC = () => {
                 setVerificationSent(false);
                 setShowVerificationFlow(false);
                 setAuthError(null);
+                setEmail("");
+                setPassword("");
               }} 
               className="btn btn-secondary"
               style={{ width: "100%" }}
@@ -335,6 +331,8 @@ export const AuthPortal: React.FC = () => {
             onClick={() => {
               setIsSignUp(!isSignUp);
               setAuthError(null);
+              setVerificationSent(false);
+              setShowVerificationFlow(false);
             }}
             style={{
               background: "none",
