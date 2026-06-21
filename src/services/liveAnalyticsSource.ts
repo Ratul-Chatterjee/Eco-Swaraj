@@ -1,4 +1,5 @@
 import type { CarbonAnalyticsDoc, CarbonAnalyticsResponse } from "./carbonAnalyticsContract";
+import { INDIA_STATE_ANALYTICS, INDIA_CITY_ANALYTICS, INDIA_ANALYTICS_SOURCE } from "../data/indiaAnalyticsDataset";
 
 const CARBON_ANALYTICS_URL = import.meta.env.VITE_CARBON_ANALYTICS_URL as string | undefined;
 const CARBON_ANALYTICS_API_KEY = import.meta.env.VITE_CARBON_ANALYTICS_API_KEY as string | undefined;
@@ -27,10 +28,22 @@ export const normalizeCarbonPayload = (payload: ExternalCarbonPayload | null | u
 export const fetchLiveCarbonAnalytics = async (): Promise<CarbonAnalyticsDoc | null> => {
   const url = CARBON_ANALYTICS_URL || DEFAULT_CARBON_ANALYTICS_URL;
 
-  const response = await fetch(url, {
-    headers: CARBON_ANALYTICS_API_KEY ? { Authorization: `Bearer ${CARBON_ANALYTICS_API_KEY}` } : undefined,
-  });
-  if (!response.ok) throw new Error(`Failed to fetch live carbon analytics: ${response.statusText}`);
+  try {
+    const response = await fetch(url, {
+      headers: CARBON_ANALYTICS_API_KEY ? { Authorization: `Bearer ${CARBON_ANALYTICS_API_KEY}` } : undefined,
+    });
+    if (!response.ok) throw new Error(`Failed to fetch live carbon analytics: ${response.statusText}`);
 
-  return normalizeCarbonPayload((await response.json()) as ExternalCarbonPayload);
+    return normalizeCarbonPayload((await response.json()) as ExternalCarbonPayload);
+  } catch (err) {
+    console.warn("API fetch failed, utilizing local static carbon analytics dataset as fallback:", err);
+    return {
+      nationalAverage: FALLBACK_NATIONAL_AVERAGE,
+      stateValues: Object.fromEntries(INDIA_STATE_ANALYTICS.map((s) => [s.state, s.value])),
+      cityValues: INDIA_CITY_ANALYTICS.map((c) => ({ state: c.state, name: c.city, value: c.value })),
+      source: INDIA_ANALYTICS_SOURCE,
+      updatedAt: new Date().toISOString(),
+      version: 1
+    };
+  }
 };

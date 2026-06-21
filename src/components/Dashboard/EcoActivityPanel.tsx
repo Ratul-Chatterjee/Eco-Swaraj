@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { db, isFirebaseConfigured } from "../../services/firebase";
 import { collection, doc, onSnapshot, query, setDoc, orderBy } from "firebase/firestore";
@@ -464,7 +464,7 @@ export const EcoActivityPanel: React.FC = () => {
             ) : (
               topStates.map((state, index) => (
                 <div
-                  key={`state-\${state.name}`}
+                  key={`state-${state.name}`}
                   className="interactive"
                   style={{
                     background: "hsla(222, 47%, 7%, 0.4)",
@@ -532,7 +532,7 @@ export const EcoActivityPanel: React.FC = () => {
             ) : (
               topCities.map((city, index) => (
                 <div
-                  key={`city-\${city.name}`}
+                  key={`city-${city.name}`}
                   className="interactive"
                   style={{
                     background: "hsla(222, 47%, 7%, 0.4)",
@@ -603,7 +603,7 @@ export const EcoActivityPanel: React.FC = () => {
             ) : (
               rankedUsers.map((rankedUser, index) => (
                 <div
-                  key={`user-\${rankedUser.uid}`}
+                  key={`user-${rankedUser.uid}`}
                   className="interactive"
                   style={{
                     background: "hsla(222, 47%, 7%, 0.4)",
@@ -635,7 +635,7 @@ export const EcoActivityPanel: React.FC = () => {
                     <div>
                       <div style={{ fontSize: "0.9rem", fontWeight: "600" }}>{rankedUser.displayName}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                        {rankedUser.city || "Unknown city"} · {rankedUser.completedTasks || 0} tasks
+                        {rankedUser.city || "Unknown city"} · {rankedUser.completedTasks || 0} tasks · {rankedUser.streakCount || 0} day streak
                       </div>
                     </div>
                   </div>
