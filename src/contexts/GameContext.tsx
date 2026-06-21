@@ -344,7 +344,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updatedProfile: UserProfile = {
         ...userProfile,
         carbonScore: newScore,
-        points: newExp
+        points: newExp,
+        completedTasks: (userProfile.completedTasks || 0) + 1
       };
 
       if (db) {
