@@ -7,10 +7,8 @@ import { ANALYTICS_DATASET_YEAR } from "../../data/indiaAnalyticsDataset";
 
 const FALLBACK_NATIONAL_AVERAGE = 1.8;
 const LANDING_MAP_DATA_YEAR = ANALYTICS_DATASET_YEAR;
-const CARBON_ANALYTICS_SOURCE_URL = "https://us-central1-eco-swaraj.cloudfunctions.net/getIndiaCarbonAnalytics";
 
-const STATE_DATA_SOURCE_URL = CARBON_ANALYTICS_SOURCE_URL;
-const CITY_DATA_SOURCE_URL = CARBON_ANALYTICS_SOURCE_URL;
+const MAP_SOURCE_URL = "https://ghgplatform-india.org";
 
 const REGION_CODE_TO_NAME: Record<string, string> = {
   "IN-AN": "Andaman and Nicobar Islands",
@@ -111,14 +109,9 @@ export const IndiaCarbonMap: React.FC = () => {
           </p>
           <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6, alignItems: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
             <div>Map and statistics are shown using {LANDING_MAP_DATA_YEAR} data.</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", justifyContent: "center" }}>
-              <a href={STATE_DATA_SOURCE_URL} target="_blank" rel="noreferrer" style={{ color: "var(--color-primary)" }}>
-                State data source URL (live analytics)
-              </a>
-              <a href={CITY_DATA_SOURCE_URL} target="_blank" rel="noreferrer" style={{ color: "var(--color-primary)" }}>
-                City data source URL (live analytics)
-              </a>
-            </div>
+            <a href={MAP_SOURCE_URL} target="_blank" rel="noreferrer" style={{ color: "var(--color-primary)" }}>
+              Source: ghgplatform-india.org
+            </a>
           </div>
         </div>
 
