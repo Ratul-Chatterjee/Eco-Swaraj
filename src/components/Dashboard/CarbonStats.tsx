@@ -96,7 +96,7 @@ export const CarbonStats: React.FC = () => {
 
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
-              <span style={{ color: "var(--text-secondary)" }}>{userProfile.state} Avg Baseline</span>
+              <span style={{ color: "var(--text-secondary)" }}>{userProfile.state} Avg Baseline (2026)</span>
               <strong>{stateAvg} tCO2e</strong>
             </div>
             <div style={{ width: "100%", height: "8px", background: "var(--glass-border)", borderRadius: "4px", overflow: "hidden" }}>
@@ -111,7 +111,7 @@ export const CarbonStats: React.FC = () => {
 
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
-              <span style={{ color: "var(--text-secondary)" }}>India National Average</span>
+              <span style={{ color: "var(--text-secondary)" }}>India National Average (2026)</span>
               <strong>{liveNationalAverage} tCO2e</strong>
             </div>
             <div style={{ width: "100%", height: "8px", background: "var(--glass-border)", borderRadius: "4px", overflow: "hidden" }}>
