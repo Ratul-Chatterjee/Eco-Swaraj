@@ -98,18 +98,30 @@ export const EcoActivityPanel: React.FC = () => {
     const usersQuery = query(collection(db, "users"));
     const unsubscribeUsers = onSnapshot(usersQuery, (snap) => {
       const mapped = snap.docs.map((entry) => {
-        const data = entry.data() as any;
+        const d = entry.data() as any;
+
+        // robustly read possible field names for completed tasks and streaks
+        const completedRaw = d.completedTasks ?? d.completed_tasks ?? d.tasksCompleted ?? d.completed ?? (d.profile && (d.profile.completedTasks ?? d.profile.completed_tasks));
+        const streakRaw = d.streakCount ?? d.streak_count ?? d.streak;
+
         return {
-          uid: data.uid || entry.id,
-          displayName: data.displayName || data.email || "Eco Citizen",
-          state: data.state || "",
-          city: data.city || "",
-          carbonScore: Number(data.carbonScore) || 0,
-          points: Number(data.points) || 0,
-          streakCount: Number(data.streakCount) || 0,
-          completedTasks: Number(data.completedTasks) || 0
+          uid: d.uid || entry.id,
+          displayName: d.displayName || d.email || "Eco Citizen",
+          state: d.state || "",
+          city: d.city || "",
+          carbonScore: Number(d.carbonScore ?? d.carbon_score) || 0,
+          points: Number(d.points ?? d.exp) || 0,
+          streakCount: Number(streakRaw) || 0,
+          completedTasks: Number(completedRaw) || 0
         } as RankedUser;
       });
+
+      // If the currently-signed in user has a more up-to-date profile, prefer that value for display
+      if (userProfile) {
+        const idx = mapped.findIndex((u) => u.uid === userProfile.uid);
+        if (idx !== -1) mapped[idx].completedTasks = Number(userProfile.completedTasks) || mapped[idx].completedTasks;
+      }
+
       setUsers(mapped);
     }, (err) => console.error("Failed to subscribe to user rankings:", err));
 
