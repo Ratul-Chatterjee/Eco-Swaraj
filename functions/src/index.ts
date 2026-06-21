@@ -7,6 +7,7 @@ admin.initializeApp();
 
 const db = admin.firestore();
 const DOC_PATH = "publicAnalytics/indiaCarbon";
+const DEFAULT_SOURCE_URL = "/api/carbon-analytics";
 
 const FALLBACK_SOURCE = {
   provider: "Configured backend job",
@@ -28,9 +29,23 @@ function normalizeResponse(payload: CarbonAnalyticsResponse): CarbonAnalyticsDoc
 }
 
 async function fetchCarbonAnalyticsFromUpstream(): Promise<CarbonAnalyticsResponse> {
-  const endpoint = process.env.CARBON_ANALYTICS_SOURCE_URL;
-  if (!endpoint) {
-    throw new Error("CARBON_ANALYTICS_SOURCE_URL is not set");
+  const endpoint = process.env.CARBON_ANALYTICS_SOURCE_URL || DEFAULT_SOURCE_URL;
+  const isRelative = endpoint.startsWith("/");
+  if (isRelative) {
+    const doc = await db.doc(DOC_PATH).get();
+    if (doc.exists) {
+      return {
+        nationalAverage: Number(doc.data()?.nationalAverage) || 1.8,
+        states: Object.entries(doc.data()?.stateValues ?? {}).map(([state, value]) => ({ state, value: Number(value) })),
+        cities: (doc.data()?.cityValues ?? []).map((entry: { state: string; name: string; value: number }) => ({
+          state: entry.state,
+          city: entry.name,
+          value: Number(entry.value)
+        })),
+        source: doc.data()?.source ?? FALLBACK_SOURCE
+      };
+    }
+    throw new Error("No cached analytics document available yet.");
   }
 
   const res = await fetch(endpoint, {
@@ -58,6 +73,22 @@ export const getIndiaCarbonAnalytics = onRequest(async (_req, res) => {
     res.json(payload);
   } catch (error) {
     console.error(error);
+
+    const doc = await db.doc(DOC_PATH).get();
+    if (doc.exists) {
+      res.json({
+        nationalAverage: Number(doc.data()?.nationalAverage) || 1.8,
+        states: Object.entries(doc.data()?.stateValues ?? {}).map(([state, value]) => ({ state, value: Number(value) })),
+        cities: (doc.data()?.cityValues ?? []).map((entry: { state: string; name: string; value: number }) => ({
+          state: entry.state,
+          city: entry.name,
+          value: Number(entry.value)
+        })),
+        source: doc.data()?.source ?? FALLBACK_SOURCE
+      } satisfies CarbonAnalyticsResponse);
+      return;
+    }
+
     res.status(500).json({
       nationalAverage: 1.8,
       states: [],

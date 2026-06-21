@@ -83,7 +83,6 @@ const isBuildingType = (value: string): value is Building["type"] => {
 
 const normalizeBuildings = (buildings: StoredGameState["buildings"]): Building[] => {
   const fallback: Building[] = [{ id: "hq_default", type: "hq", x: 3, y: 3, level: 1 }];
-
   if (!buildings?.length) return fallback;
 
   const parsed = buildings
@@ -104,13 +103,26 @@ const normalizeBuildings = (buildings: StoredGameState["buildings"]): Building[]
 
 const normalizeTasks = (tasks: EcoTask[] | undefined): EcoTask[] => {
   if (!tasks?.length) return INITIAL_TASKS;
-
   return INITIAL_TASKS.map((task) => {
     const saved = tasks.find((entry) => entry.id === task.id);
     return saved
-      ? { ...task, completed: Boolean(saved.completed), proofImage: saved.proofImage }
+      ? { ...task, completed: Boolean(saved.completed), ...(saved.proofImage ? { proofImage: saved.proofImage } : {}) }
       : task;
   });
+};
+
+const stripUndefined = <T,>(value: T): T => {
+  if (Array.isArray(value)) {
+    return value.map((entry) => stripUndefined(entry)).filter((entry) => entry !== undefined) as T;
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, entry]) => entry !== undefined)
+        .map(([key, entry]) => [key, stripUndefined(entry)])
+    ) as T;
+  }
+  return value;
 };
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -135,29 +147,25 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user || !db || !gameDocRef || !userDocRef) return;
 
     const timestamp = new Date().toISOString();
+    const payload = stripUndefined({
+      buildings: nextBuildings,
+      ecoPoints: nextPoints,
+      streakCount: nextStreak,
+      lastCheckIn: nextLastCheckIn,
+      dailyTasks: nextTasks,
+      lastUpdated: timestamp
+    });
+
+    const profilePayload = stripUndefined({
+      ecoPoints: nextPoints,
+      streakCount: nextStreak,
+      lastCheckIn: nextLastCheckIn,
+      lastUpdated: timestamp
+    });
+
     await Promise.all([
-      setDoc(
-        gameDocRef,
-        {
-          buildings: nextBuildings,
-          ecoPoints: nextPoints,
-          streakCount: nextStreak,
-          lastCheckIn: nextLastCheckIn,
-          dailyTasks: nextTasks,
-          lastUpdated: timestamp
-        },
-        { merge: true }
-      ),
-      setDoc(
-        userDocRef,
-        {
-          ecoPoints: nextPoints,
-          streakCount: nextStreak,
-          lastCheckIn: nextLastCheckIn,
-          lastUpdated: timestamp
-        } as StoredUserGameState,
-        { merge: true }
-      )
+      setDoc(gameDocRef, payload, { merge: true }),
+      setDoc(userDocRef, profilePayload as StoredUserGameState, { merge: true })
     ]);
   };
 
@@ -416,7 +424,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .filter((t) => t.completed)
       .reduce((sum, t) => sum + t.pointsReward, 0);
 
-    const nextTasks = INITIAL_TASKS.map((t) => ({ ...t, completed: false, proofImage: undefined }));
+    const nextTasks = INITIAL_TASKS.map((t) => ({ ...t, completed: false, ...(t.proofImage ? { proofImage: t.proofImage } : {}) }));
 
     if (pointsToDeduct === 0) {
       setDailyTasks(nextTasks);
