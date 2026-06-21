@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useUser } from "../../contexts/UserContext";
+import { auth } from "../../services/firebase";
 import { Mail, Lock, User, ShieldCheck } from "lucide-react";
 
 export const AuthPortal: React.FC = () => {
@@ -23,6 +24,16 @@ export const AuthPortal: React.FC = () => {
   const [verificationEmail, setVerificationEmail] = useState<string>("");
   const [showVerificationFlow, setShowVerificationFlow] = useState<boolean>(false);
 
+  const isVerificationRelatedError = (err: any) => {
+    const message = String(err?.message || "").toLowerCase();
+    return (
+      message.includes("not verified") ||
+      message.includes("unverified") ||
+      message.includes("verification") ||
+      err?.code === "auth/email-not-verified"
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
@@ -39,21 +50,17 @@ export const AuthPortal: React.FC = () => {
 
       try {
         await signUpWithEmail(email, password, name);
+        setVerificationEmail(email.trim());
+        setVerificationSent(true);
+        setShowVerificationFlow(true);
       } catch (err: any) {
-        // If verification email is triggered successfully, it returns a descriptive message
-        if (err.message.includes("verification link has been sent")) {
-          setVerificationEmail(email);
-          setVerificationSent(true);
-          setShowVerificationFlow(true);
-        } else {
-          setAuthError(err.message || "Registration failed.");
-        }
+        setAuthError(err.message || "Registration failed.");
       }
     } else {
       try {
         await loginWithEmail(email, password);
       } catch (err: any) {
-        if (err.message?.includes("not verified") || err.message === "unverified-email") {
+        if (isVerificationRelatedError(err)) {
           setVerificationEmail(email);
           setVerificationSent(true);
           setShowVerificationFlow(true);
@@ -78,6 +85,11 @@ export const AuthPortal: React.FC = () => {
   const checkVerification = async () => {
     setAuthError(null);
     await refreshAuthStatus();
+
+    if (auth?.currentUser?.emailVerified) {
+      setVerificationSent(false);
+      setShowVerificationFlow(false);
+    }
   };
 
   const handleResendVerification = async () => {

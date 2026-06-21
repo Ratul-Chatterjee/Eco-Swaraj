@@ -226,13 +226,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const newProfile = createDefaultProfile(curUser, name);
       await setDoc(doc(db, "users", curUser.uid), newProfile, { merge: true });
       
-      // Inform client to show verification screen
-      throw new Error("verification-sent");
+      return;
     } catch (err: any) {
       console.error(err);
-      if (err.message === "verification-sent") {
-        throw new Error("A verification link has been sent to your email. Please check your inbox and verify your email to log in.");
-      }
       if (err.code === "auth/email-already-in-use") {
         throw new Error("An account already exists with this email address.");
       }

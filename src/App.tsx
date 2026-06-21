@@ -2,6 +2,7 @@ import React from "react";
 import { UserProvider, useUser } from "./contexts/UserContext";
 import { GameProvider } from "./contexts/GameContext";
 import { LandingPage } from "./components/Auth/LandingPage";
+import { AuthPortal } from "./components/Auth/AuthPortal";
 import { OnboardingCalculator } from "./components/Tracker/OnboardingCalculator";
 import { UserDashboard } from "./components/Dashboard/UserDashboard";
 import { FirebaseConfigOverlay } from "./components/Common/FirebaseConfigOverlay";
@@ -50,8 +51,12 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (!user || (user && !user.emailVerified)) {
+  if (!user) {
     return <LandingPage />;
+  }
+
+  if (user && !user.emailVerified) {
+    return <AuthPortal />;
   }
 
   if (!userProfile || !userProfile.isCalculated) {
