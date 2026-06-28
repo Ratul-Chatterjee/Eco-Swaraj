@@ -112,34 +112,32 @@ export const AuthPortal: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "16px"
+        padding: "8px"
       }}>
         <div className="glass-card animate-fade-in" style={{
-          maxWidth: "480px",
+          maxWidth: "440px",
           width: "100%",
-          maxHeight: "85vh",
-          overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          gap: "20px",
-          padding: "32px"
+          gap: "10px",
+          padding: "18px"
         }}>
-          <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+          <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
             <div style={{
               background: "var(--color-primary-glow)",
               border: "1px solid var(--color-primary)",
               borderRadius: "50%",
-              width: "64px",
-              height: "64px",
+              width: "44px",
+              height: "44px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "var(--color-primary)"
             }}>
-              <ShieldCheck size={36} />
+              <ShieldCheck size={24} />
             </div>
-            <h2 style={{ fontSize: "2rem" }}>Verify Your Email</h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: "1.5" }}>
+            <h2 style={{ fontSize: "1.4rem" }}>Verify Your Email</h2>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", lineHeight: "1.4" }}>
               We've sent a verification link to <strong style={{ color: "#fff" }}>{targetEmail}</strong>. 
               Please check your inbox and spam folder, click the link, and then return here.
             </p>
@@ -150,21 +148,21 @@ export const AuthPortal: React.FC = () => {
               background: "rgba(255, 82, 82, 0.15)",
               border: "1px solid var(--color-danger)",
               color: "var(--color-danger)",
-              padding: "12px",
+              padding: "8px",
               borderRadius: "var(--radius-sm)",
-              fontSize: "0.9rem",
-              lineHeight: "1.4"
+              fontSize: "0.82rem",
+              lineHeight: "1.3"
             }}>
               {authError}
             </div>
           )}
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <button 
               onClick={checkVerification} 
               disabled={loading}
               className="btn btn-primary"
-              style={{ width: "100%" }}
+              style={{ width: "100%", height: "36px", fontSize: "0.85rem" }}
             >
               {loading ? "Checking..." : "I have verified my email"}
             </button>
@@ -173,7 +171,7 @@ export const AuthPortal: React.FC = () => {
               onClick={handleResendVerification}
               disabled={loading}
               className="btn btn-secondary"
-              style={{ width: "100%" }}
+              style={{ width: "100%", height: "36px", fontSize: "0.85rem" }}
             >
               {loading ? "Sending..." : "Resend verification email"}
             </button>
@@ -186,7 +184,7 @@ export const AuthPortal: React.FC = () => {
                 window.dispatchEvent(new Event("eco-swaraj:close-auth"));
               }}
               className="btn btn-secondary"
-              style={{ width: "100%" }}
+              style={{ width: "100%", height: "36px", fontSize: "0.85rem" }}
             >
               Back to Landing Page
             </button>
@@ -200,7 +198,7 @@ export const AuthPortal: React.FC = () => {
                 setPassword("");
               }} 
               className="btn btn-secondary"
-              style={{ width: "100%" }}
+              style={{ width: "100%", height: "36px", fontSize: "0.85rem" }}
             >
               Back to Login
             </button>
@@ -216,24 +214,22 @@ export const AuthPortal: React.FC = () => {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "16px"
+      padding: "8px"
     }}>
       <div className="glass-card animate-fade-in" style={{
-        maxWidth: "480px",
+        maxWidth: "440px",
         width: "100%",
-        maxHeight: "85vh",
-        overflowY: "auto",
-        padding: "32px",
         display: "flex",
         flexDirection: "column",
-        gap: "20px",
+        gap: "10px",
+        padding: "18px",
         boxShadow: "var(--shadow-glass)"
       }}>
         <div style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "clamp(1.5rem, 5vw, 2.2rem)", marginBottom: "6px" }}>
+          <h2 style={{ fontSize: "clamp(1.1rem, 4vw, 1.7rem)", marginBottom: "3px" }}>
             {isSignUp ? "Create Eco-Account" : "Welcome Back"}
           </h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem" }}>
             {isSignUp 
               ? "Start tracking your carbon footprint and build your green city!" 
               : "Sign in to access your Eco-City dashboard and tasks"}
@@ -245,28 +241,28 @@ export const AuthPortal: React.FC = () => {
             background: "rgba(255, 82, 82, 0.15)",
             border: "1px solid var(--color-danger)",
             color: "var(--color-danger)",
-            padding: "12px",
+            padding: "8px",
             borderRadius: "var(--radius-sm)",
-            fontSize: "0.9rem",
-            lineHeight: "1.4"
+            fontSize: "0.82rem",
+            lineHeight: "1.3"
           }}>
             {authError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {isSignUp && (
             <div className="form-group">
-              <label className="form-label">Full Name</label>
+              <label className="form-label" style={{ fontSize: "0.82rem" }}>Full Name</label>
               <div style={{ position: "relative" }}>
-                <User size={18} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+                <User size={15} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
                 <input
                   type="text"
                   className="glass-input"
                   placeholder="John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  style={{ width: "100%", paddingLeft: "42px" }}
+                  style={{ width: "100%", padding: "8px 12px 8px 36px", fontSize: "0.85rem" }}
                   required
                 />
               </div>
@@ -274,32 +270,32 @@ export const AuthPortal: React.FC = () => {
           )}
 
           <div className="form-group">
-            <label className="form-label">Email Address</label>
+            <label className="form-label" style={{ fontSize: "0.82rem" }}>Email Address</label>
             <div style={{ position: "relative" }}>
-              <Mail size={18} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+              <Mail size={15} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
               <input
                 type="email"
                 className="glass-input"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ width: "100%", paddingLeft: "42px" }}
+                style={{ width: "100%", padding: "8px 12px 8px 36px", fontSize: "0.85rem" }}
                 required
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Password</label>
+            <label className="form-label" style={{ fontSize: "0.82rem" }}>Password</label>
             <div style={{ position: "relative" }}>
-              <Lock size={18} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+              <Lock size={15} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
               <input
                 type="password"
                 className="glass-input"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={{ width: "100%", paddingLeft: "42px" }}
+                style={{ width: "100%", padding: "8px 12px 8px 36px", fontSize: "0.85rem" }}
                 required
               />
             </div>
@@ -309,7 +305,7 @@ export const AuthPortal: React.FC = () => {
             type="submit" 
             disabled={loading}
             className="btn btn-primary"
-            style={{ width: "100%", height: "46px", fontSize: "1rem" }}
+            style={{ width: "100%", height: "38px", fontSize: "0.9rem" }}
           >
             {loading ? "Processing..." : isSignUp ? "Create Account" : "Sign In"}
           </button>
@@ -319,11 +315,10 @@ export const AuthPortal: React.FC = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: "10px",
-          margin: "8px 0"
+          gap: "8px"
         }}>
           <div style={{ flex: 1, height: "1px", background: "var(--glass-border)" }}></div>
-          <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>OR</span>
+          <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>OR</span>
           <div style={{ flex: 1, height: "1px", background: "var(--glass-border)" }}></div>
         </div>
 
@@ -331,9 +326,9 @@ export const AuthPortal: React.FC = () => {
           onClick={handleGoogleSignIn} 
           disabled={loading}
           className="btn btn-google"
-          style={{ width: "100%", height: "46px", display: "flex", gap: "10px", fontWeight: "600" }}
+          style={{ width: "100%", height: "38px", display: "flex", gap: "8px", fontWeight: "600", fontSize: "0.85rem" }}
         >
-          <svg width="18" height="18" viewBox="0 0 18 18">
+          <svg width="16" height="16" viewBox="0 0 18 18">
             <path fill="#4285F4" d="M17.6 9.2c0-.6-.1-1.2-.2-1.8H9v3.4h4.8c-.2 1.1-.8 2-1.8 2.6v2.2h2.9c1.7-1.6 2.7-4 2.7-7.2z"/>
             <path fill="#34A853" d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.5-1.8.8-3.1.8-2.4 0-4.4-1.6-5.1-3.8H.9v2.3C2.4 15.9 5.5 18 9 18z"/>
             <path fill="#FBBC05" d="M3.9 10.6c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V4.3H.9C.3 5.4 0 6.7 0 8s.3 2.6.9 3.7l3-2.3z"/>
@@ -343,11 +338,11 @@ export const AuthPortal: React.FC = () => {
         </button>
 
         <div style={{
-          fontSize: "0.75rem",
+          fontSize: "0.7rem",
           color: "var(--text-muted)",
           textAlign: "center",
-          lineHeight: 1.5,
-          padding: "10px 0 4px",
+          lineHeight: 1.4,
+          padding: "6px 0 2px",
           borderTop: "1px solid var(--glass-border)"
         }}>
           This website does not store any personal data beyond what is required for core functionality. All data is private and is not shared with anyone.{' '}
@@ -361,7 +356,7 @@ export const AuthPortal: React.FC = () => {
           </a>
         </div>
 
-        <div style={{ textAlign: "center", marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: "6px" }}>
           <button
             onClick={() => {
               setIsSignUp(!isSignUp);
@@ -375,8 +370,9 @@ export const AuthPortal: React.FC = () => {
               color: "var(--color-primary)",
               cursor: "pointer",
               fontFamily: "var(--font-display)",
-              fontSize: "0.95rem",
-              fontWeight: "500"
+              fontSize: "0.85rem",
+              fontWeight: "500",
+              padding: "2px"
             }}
           >
             {isSignUp ? "Already have an account? Sign In" : "New to Eco-Swaraj? Create an account"}
@@ -391,58 +387,14 @@ export const AuthPortal: React.FC = () => {
               color: "var(--text-muted)",
               cursor: "pointer",
               fontFamily: "var(--font-display)",
-              fontSize: "0.9rem"
+              fontSize: "0.82rem",
+              padding: "2px"
             }}
           >
             ← Back to Landing Page
           </button>
         </div>
       </div>
-      <style>{`
-        @media (max-height: 600px) {
-          .glass-card.animate-fade-in {
-            padding: 20px !important;
-            gap: 12px !important;
-          }
-          .glass-card.animate-fade-in h2 {
-            font-size: 1.3rem !important;
-          }
-          .glass-card.animate-fade-in p {
-            font-size: 0.82rem !important;
-          }
-          .glass-card.animate-fade-in .btn {
-            height: 38px !important;
-            font-size: 0.85rem !important;
-          }
-          .glass-card.animate-fade-in input {
-            padding: 8px 12px !important;
-            font-size: 0.85rem !important;
-          }
-        }
-        @media (max-height: 480px) {
-          .glass-card.animate-fade-in {
-            padding: 14px !important;
-            gap: 8px !important;
-          }
-          .glass-card.animate-fade-in h2 {
-            font-size: 1.1rem !important;
-          }
-          .glass-card.animate-fade-in .btn {
-            height: 34px !important;
-            font-size: 0.8rem !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .glass-card.animate-fade-in {
-            padding: 24px !important;
-          }
-        }
-        @media (max-height: 700px) and (orientation: landscape) {
-          .glass-card.animate-fade-in {
-            max-height: 80vh !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
