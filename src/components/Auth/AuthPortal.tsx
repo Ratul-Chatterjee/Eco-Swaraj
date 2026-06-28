@@ -108,19 +108,21 @@ export const AuthPortal: React.FC = () => {
     const targetEmail = user?.email || verificationEmail;
     return (
       <div style={{
-        minHeight: "100vh",
+        width: "100%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "24px"
+        padding: "16px"
       }}>
         <div className="glass-card animate-fade-in" style={{
           maxWidth: "480px",
           width: "100%",
+          maxHeight: "85vh",
+          overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          gap: "24px",
-          padding: "40px"
+          gap: "20px",
+          padding: "32px"
         }}>
           <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
             <div style={{
@@ -210,23 +212,25 @@ export const AuthPortal: React.FC = () => {
 
   return (
     <div style={{
-      minHeight: "100vh",
+      width: "100%",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "24px"
+      padding: "16px"
     }}>
       <div className="glass-card animate-fade-in" style={{
         maxWidth: "480px",
         width: "100%",
-        padding: "40px",
+        maxHeight: "85vh",
+        overflowY: "auto",
+        padding: "32px",
         display: "flex",
         flexDirection: "column",
-        gap: "24px",
+        gap: "20px",
         boxShadow: "var(--shadow-glass)"
       }}>
         <div style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "2.2rem", marginBottom: "8px" }}>
+          <h2 style={{ fontSize: "clamp(1.5rem, 5vw, 2.2rem)", marginBottom: "6px" }}>
             {isSignUp ? "Create Eco-Account" : "Welcome Back"}
           </h2>
           <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
@@ -394,6 +398,51 @@ export const AuthPortal: React.FC = () => {
           </button>
         </div>
       </div>
+      <style>{`
+        @media (max-height: 600px) {
+          .glass-card.animate-fade-in {
+            padding: 20px !important;
+            gap: 12px !important;
+          }
+          .glass-card.animate-fade-in h2 {
+            font-size: 1.3rem !important;
+          }
+          .glass-card.animate-fade-in p {
+            font-size: 0.82rem !important;
+          }
+          .glass-card.animate-fade-in .btn {
+            height: 38px !important;
+            font-size: 0.85rem !important;
+          }
+          .glass-card.animate-fade-in input {
+            padding: 8px 12px !important;
+            font-size: 0.85rem !important;
+          }
+        }
+        @media (max-height: 480px) {
+          .glass-card.animate-fade-in {
+            padding: 14px !important;
+            gap: 8px !important;
+          }
+          .glass-card.animate-fade-in h2 {
+            font-size: 1.1rem !important;
+          }
+          .glass-card.animate-fade-in .btn {
+            height: 34px !important;
+            font-size: 0.8rem !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .glass-card.animate-fade-in {
+            padding: 24px !important;
+          }
+        }
+        @media (max-height: 700px) and (orientation: landscape) {
+          .glass-card.animate-fade-in {
+            max-height: 80vh !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

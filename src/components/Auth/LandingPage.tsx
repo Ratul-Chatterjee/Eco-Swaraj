@@ -222,6 +222,7 @@ export const LandingPage: React.FC = () => {
           justifyContent: "center",
           zIndex: 100,
           padding: "20px",
+          overflowY: "auto",
           cursor: "default"
         }}
         onClick={closeAuthModal}
