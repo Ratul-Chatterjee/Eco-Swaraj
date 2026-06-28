@@ -224,6 +224,28 @@ export const EcoActivityPanel: React.FC = () => {
     }
   };
 
+  const linkify = (text: string): React.ReactNode => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts: (string | React.ReactNode)[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = urlRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+      parts.push(
+        <a key={match.index} href={match[0]} target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-primary)", textDecoration: "underline" }}>
+          {match[0]}
+        </a>
+      );
+      lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+    return parts.length ? parts : text;
+  };
+
   const getScore = (post: CommunityPost) => post.upvotes.length - post.downvotes.length;
   const getUserVote = (post: CommunityPost) => {
     if (!user) return "none";
@@ -374,7 +396,7 @@ export const EcoActivityPanel: React.FC = () => {
                         </div>
                       </div>
 
-                      <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.65, fontSize: "0.96rem", margin: 0, color: "var(--text-primary)" }}>{post.content}</p>
+                      <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.65, fontSize: "0.96rem", margin: 0, color: "var(--text-primary)" }}>{linkify(post.content)}</p>
 
                       {/* Comments section */}
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid var(--glass-border)", paddingTop: "14px" }}>
@@ -427,7 +449,7 @@ export const EcoActivityPanel: React.FC = () => {
                                   <span>{new Date(comment.createdAt).toLocaleString()}</span>
                                 </div>
                                 <div style={{ whiteSpace: "pre-wrap", fontSize: "0.9rem", color: "var(--text-primary)", lineHeight: 1.5 }}>
-                                  {comment.content}
+                                  {linkify(comment.content)}
                                 </div>
                               </div>
                             ))}
