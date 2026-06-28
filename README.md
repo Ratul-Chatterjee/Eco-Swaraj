@@ -47,6 +47,7 @@ The main goal of Eco-Swaraj is to encourage sustainable behavior by helping user
 - **Daily eco-actions tracker** with points and streaks
 - **Gamified eco-city builder** to reward sustainable behavior
 - **Community activity section** for posts, comments, and engagement
+- **Keyword Reward System** — posts containing eco-relevant keywords in a meaningful context earn 10 EP + 10 XP per keyword
 
 ---
 
@@ -67,3 +68,49 @@ The main goal of Eco-Swaraj is to encourage sustainable behavior by helping user
 3. **Users log sustainable actions** to earn rewards and improve their progress
 4. **The dashboard shows insights, rankings, and community activity**
 5. **Users continue building their eco-city** as they reduce their impact over time
+
+---
+
+## Keyword Reward System
+
+The platform incentivises meaningful community participation through a keyword-based reward system in the Live Community Feed.
+
+### How It Works
+
+1. **User writes a post** in the Community section
+2. The **Meaningfulness Model** checks whether the post is a genuine, non-spammy sentence
+3. If valid, the system scans the post against a curated library of **80+ eco-keywords** (e.g., *sustainable*, *compost*, *biodiversity*, *carbon*, *renewable*)
+4. For each unique keyword found, the author earns **10 Eco-Points (EP)** and **10 Experience Points (XP)**
+5. A green confirmation banner shows the total reward earned
+
+### Meaningfulness Model
+
+To prevent spam and keyword stuffing (e.g., *"eco eco eco"*), every post passes through a heuristic validation model before rewards are issued:
+
+| Check | Rule | Purpose |
+|---|---|---|
+| Minimum length | At least 5 words | Filters empty/trivial posts |
+| Lexical diversity | Unique words ≥ 40% of total | Detects repeated spam |
+| Word frequency cap | No word appears more than 3 times | Prevents excessive repetition |
+| Consecutive duplicate check | No adjacent identical words | Catches "eco eco eco" patterns |
+| Keyword density | Keywords ≤ 70% of total words | Ensures meaningful context |
+| Non-keyword floor | At least 2 non-keyword words present | Requires filler/connector words |
+
+All checks must pass for rewards to be issued.
+
+### Keyword Library
+
+The keyword library (`src/data/ecoKeywords.ts`) contains 80+ curated terms across categories:
+- **Energy & Conservation** — sustainable, solar, renewable, efficiency, insulation
+- **Transport & Mobility** — bicycle, transit, carpool, ev, carbon, offset
+- **Waste & Recycling** — compost, biodegradable, upcycle, circular, zero-waste
+- **Food & Agriculture** — vegan, organic, regenerative, plant-based
+- **Nature & Environment** — biodiversity, reforestation, ecosystem, climate
+- **Lifestyle & General** — mindful, ethical, activist, eco-conscious
+
+### File Reference
+
+| File | Role |
+|---|---|
+| `src/data/ecoKeywords.ts` | Keyword library, meaningfulness model, keyword matcher |
+| `src/components/Dashboard/EcoActivityPanel.tsx` | Reward integration — called during post creation |

@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { db, isFirebaseConfigured } from "../../services/firebase";
-import { collection, doc, onSnapshot, query, setDoc, updateDoc, orderBy, arrayUnion, arrayRemove } from "firebase/firestore";
-import { MessageSquare, ThumbsUp, ThumbsDown, Send, Trophy, MapPin, Users } from "lucide-react";
+import { collection, doc, getDoc, onSnapshot, query, setDoc, updateDoc, orderBy, arrayUnion, arrayRemove } from "firebase/firestore";
+import { MessageSquare, ThumbsUp, ThumbsDown, Send, Trophy, MapPin, Users, Award } from "lucide-react";
 import { subscribeToCarbonAnalytics, type CarbonAnalyticsDoc } from "../../services/carbonAnalytics";
+import { isMeaningful, findMatchingKeywords } from "../../data/ecoKeywords";
 
 type CommunityComment = {
   id: string;
@@ -47,6 +48,7 @@ export const EcoActivityPanel: React.FC = () => {
   // Validation error states
   const [postError, setPostError] = useState<string | null>(null);
   const [commentErrors, setCommentErrors] = useState<Record<string, string>>({});
+  const [rewardMessage, setRewardMessage] = useState<string | null>(null);
 
   useEffect(() => subscribeToCarbonAnalytics(setAnalytics), []);
 
@@ -138,6 +140,7 @@ export const EcoActivityPanel: React.FC = () => {
   const createPost = async () => {
     if (!user || !userProfile) return;
     setPostError(null);
+    setRewardMessage(null);
     const trimmed = postDraft.trim();
     if (!trimmed) return;
     
@@ -160,6 +163,31 @@ export const EcoActivityPanel: React.FC = () => {
 
     await persistPosts([nextPost, ...posts]);
     setPostDraft("");
+
+    if (isMeaningful(trimmed)) {
+      const matched = findMatchingKeywords(trimmed);
+      if (matched.length > 0 && db) {
+        const rewardPerKeyword = 10;
+        const totalReward = matched.length * rewardPerKeyword;
+        const currentPoints = userProfile.points || 0;
+        const currentEcoPoints = await (async () => {
+          try {
+            const gameSnap = await getDoc(doc(db, "users", user.uid, "game", "state"));
+            return Number(gameSnap.data()?.ecoPoints) || 0;
+          } catch {
+            return 0;
+          }
+        })();
+
+        await Promise.all([
+          setDoc(doc(db, "users", user.uid), { points: currentPoints + totalReward }, { merge: true }),
+          setDoc(doc(db, "users", user.uid, "game", "state"), { ecoPoints: currentEcoPoints + totalReward, lastUpdated: new Date().toISOString() }, { merge: true }),
+        ]);
+
+        window.dispatchEvent(new Event("profile-updated"));
+        setRewardMessage(`+${totalReward} EP & +${totalReward} XP for using ${matched.length} eco keyword${matched.length > 1 ? "s" : ""}!`);
+      }
+    }
   };
 
   const votePost = async (postId: string, direction: "up" | "down") => {
@@ -304,6 +332,23 @@ export const EcoActivityPanel: React.FC = () => {
               {postError && (
                 <div style={{ color: "var(--color-danger)", fontSize: "0.85rem", marginTop: "4px" }}>
                   {postError}
+                </div>
+              )}
+              {rewardMessage && (
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  background: "rgba(16, 185, 129, 0.1)",
+                  border: "1px solid rgba(16, 185, 129, 0.3)",
+                  color: "var(--color-primary)",
+                  fontSize: "0.85rem",
+                  fontWeight: "600"
+                }}>
+                  <Award size={16} />
+                  {rewardMessage}
                 </div>
               )}
             </section>
