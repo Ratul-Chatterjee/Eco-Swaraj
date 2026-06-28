@@ -103,10 +103,6 @@ const normalizeBuildings = (buildings: StoredGameState["buildings"]): Building[]
   return parsed.length ? parsed : fallback;
 };
 
-const normalizeTasks = (_tasks?: EcoTask[]): EcoTask[] => {
-  return INITIAL_TASKS.map((t) => ({ ...t }));
-};
-
 const stripUndefined = <T,>(value: T): T => {
   if (Array.isArray(value)) {
     return value.map((entry) => stripUndefined(entry)).filter((entry) => entry !== undefined) as T;
