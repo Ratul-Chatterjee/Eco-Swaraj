@@ -98,15 +98,25 @@ To prevent spam and keyword stuffing (e.g., *"eco eco eco"*), every post passes 
 
 All checks must pass for rewards to be issued.
 
+### Keyword Matching
+
+The keyword matcher uses two strategies for maximum coverage:
+
+1. **Exact match** — the word appears verbatim in the keyword list
+2. **Substring match** — the word contains a keyword as a substring (e.g., *"eco-friendly"* contains *"eco"*, *"energy-inefficient"* contains *"energy"*)
+
+The text is tokenized by splitting on whitespace **and** punctuation/hyphens, so compound terms like *"plant-based"* or *"energy-efficient"* are broken into their component words for matching.
+
 ### Keyword Library
 
-The keyword library (`src/data/ecoKeywords.ts`) contains 80+ curated terms across categories:
-- **Energy & Conservation** — sustainable, solar, renewable, efficiency, insulation
-- **Transport & Mobility** — bicycle, transit, carpool, ev, carbon, offset
-- **Waste & Recycling** — compost, biodegradable, upcycle, circular, zero-waste
-- **Food & Agriculture** — vegan, organic, regenerative, plant-based
-- **Nature & Environment** — biodiversity, reforestation, ecosystem, climate
-- **Lifestyle & General** — mindful, ethical, activist, eco-conscious
+The keyword library (`src/data/ecoKeywords.ts`) contains **180+ curated terms** across categories, including common grammatical variants (e.g., *reduce*, *reducing*, *reduced*; *compost*, *composting*, *composted*):
+
+- **Energy & Conservation** — sustainable, solar, renewable, efficiency, insulation, thermostat, standby
+- **Transport & Mobility** — bicycle, transit, carpool, ev, carbon, offset, driving, commute
+- **Waste & Recycling** — compost, biodegradable, upcycle, circular, repair, thrift
+- **Food & Agriculture** — vegan, organic, regenerative, diet, seasonal, legumes
+- **Nature & Environment** — biodiversity, reforestation, ecosystem, climate, habitat
+- **Lifestyle & General** — mindful, ethical, activist, systemic, impact, awareness
 
 ### File Reference
 
