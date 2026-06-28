@@ -338,6 +338,25 @@ export const AuthPortal: React.FC = () => {
           Continue with Google
         </button>
 
+        <div style={{
+          fontSize: "0.75rem",
+          color: "var(--text-muted)",
+          textAlign: "center",
+          lineHeight: 1.5,
+          padding: "10px 0 4px",
+          borderTop: "1px solid var(--glass-border)"
+        }}>
+          This website does not store any personal data beyond what is required for core functionality. All data is private and is not shared with anyone.{' '}
+          <a
+            href="https://github.com/Ratul-Chatterjee/Eco-Swaraj/blob/main/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "var(--color-primary)", textDecoration: "underline", fontWeight: 500 }}
+          >
+            Know more about User Data Policy
+          </a>
+        </div>
+
         <div style={{ textAlign: "center", marginTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
           <button
             onClick={() => {

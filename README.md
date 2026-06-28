@@ -124,3 +124,39 @@ The keyword library (`src/data/ecoKeywords.ts`) contains **180+ curated terms** 
 |---|---|
 | `src/data/ecoKeywords.ts` | Keyword library, meaningfulness model, keyword matcher |
 | `src/components/Dashboard/EcoActivityPanel.tsx` | Reward integration — called during post creation |
+
+---
+
+## User Data Policy
+
+### Data Collection & Storage
+
+Eco-Swaraj takes your privacy seriously. Here is how we handle your data:
+
+- **Account Data**: When you sign up, we store your email address, display name, and authentication credentials via Firebase Authentication. This is required to provide you with a personalized experience.
+
+- **Carbon Calculator Data**: Your carbon footprint inputs (transport, energy, food preferences) are stored securely in Firebase Firestore. This data is used solely to calculate your carbon footprint and provide personalized recommendations.
+
+- **Community Posts**: Any content you post in the Community Feed is stored in Firestore and visible to other authenticated users. Post content is used for the Keyword Reward System to award Eco-Points.
+
+- **Progress & Rewards**: Your Eco-Points, streak count, completed tasks, and eco-city buildings are stored to persist your progress across sessions.
+
+### Data Privacy
+
+- **No data sharing**: We do not sell, share, or transfer your personal data to any third parties. Your data is used exclusively within the Eco-Swaraj application.
+
+- **No tracking**: We do not use analytics cookies, tracking scripts, or any form of user behavior tracking beyond what is necessary for the app's core functionality.
+
+- **Firebase-hosted**: All data is stored securely in Firebase Firestore, which follows industry-standard security practices. Firestore rules ensure users can only access their own data and public community content.
+
+- **No sensitive data**: We do not store passwords directly — authentication is handled entirely by Firebase Authentication. We never store credit card details, government IDs, or other sensitive personal information.
+
+### Your Rights
+
+- **Delete your data**: You may request deletion of your account and associated data at any time by contacting the repository owner.
+- **View your data**: You can see all stored data directly within the app dashboard and settings.
+- **Data portability**: Your carbon calculator inputs can be exported from your profile settings.
+
+### Contact
+
+For questions about this policy or to request data deletion, please open an issue on the [GitHub repository](https://github.com/Ratul-Chatterjee/Eco-Swaraj/issues).
