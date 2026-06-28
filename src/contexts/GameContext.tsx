@@ -103,6 +103,16 @@ const normalizeBuildings = (buildings: StoredGameState["buildings"]): Building[]
   return parsed.length ? parsed : fallback;
 };
 
+const normalizeTasks = (saved: EcoTask[] | undefined): EcoTask[] => {
+  if (!saved?.length) return INITIAL_TASKS.map((t) => ({ ...t }));
+  return INITIAL_TASKS.map((task) => {
+    const savedTask = saved.find((s) => s.id === task.id);
+    return savedTask
+      ? { ...task, completed: Boolean(savedTask.completed) }
+      : { ...task };
+  });
+};
+
 const stripUndefined = <T,>(value: T): T => {
   if (Array.isArray(value)) {
     return value.map((entry) => stripUndefined(entry)).filter((entry) => entry !== undefined) as T;
@@ -135,19 +145,24 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     nextPoints: number,
     nextStreak: number = streakCount,
     nextLastCheckIn: string | null = lastCheckIn,
-    _nextTasks?: EcoTask[],
+    nextTasks?: EcoTask[],
     nextLastTaskDate?: string
   ) => {
     if (!user || !db || !gameDocRef || !userDocRef) return;
 
     const effectiveLastTaskDate = nextLastTaskDate ?? lastTaskDate ?? new Date().toDateString();
     const timestamp = new Date().toISOString();
+    const tasksForStorage = nextTasks?.map((t) => ({
+      ...t,
+      proofImage: undefined as string | undefined
+    }));
     const payload = stripUndefined({
       buildings: nextBuildings,
       ecoPoints: nextPoints,
       streakCount: nextStreak,
       lastCheckIn: nextLastCheckIn,
       lastTaskDate: effectiveLastTaskDate,
+      dailyTasks: tasksForStorage,
       lastUpdated: timestamp
     });
 
@@ -172,7 +187,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     newLastCheckIn: string | null = lastCheckIn
   ) => {
     try {
-      await writeGameState(newBuildings, newPoints, newStreak, newLastCheckIn, undefined, lastTaskDate ?? undefined);
+      await writeGameState(newBuildings, newPoints, newStreak, newLastCheckIn, dailyTasks, lastTaskDate ?? undefined);
     } catch (err) {
       console.error("Error saving game data to Firestore:", err);
     }
@@ -224,25 +239,30 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const isNewDay = loadedLastTaskDate !== todayStr;
 
         if (isNewDay) {
-          setDailyTasks(INITIAL_TASKS.map((t) => ({ ...t })));
+          const freshTasks = INITIAL_TASKS.map((t) => ({ ...t }));
+          setDailyTasks(freshTasks);
           setLastTaskDate(todayStr);
           await writeGameState(
             loadedBuildings,
             Number.isNaN(loadedPoints) ? 0 : loadedPoints,
             loadedStreak,
             loadedLastCheckIn,
-            undefined,
+            freshTasks,
             todayStr
           );
-        } else if (!gameSnap.exists()) {
-          await writeGameState(
-            loadedBuildings,
-            Number.isNaN(loadedPoints) ? 0 : loadedPoints,
-            loadedStreak,
-            loadedLastCheckIn,
-            undefined,
-            loadedLastTaskDate ?? undefined
-          );
+        } else {
+          const loadedTasks = normalizeTasks(gameData.dailyTasks);
+          setDailyTasks(loadedTasks);
+          if (!gameSnap.exists()) {
+            await writeGameState(
+              loadedBuildings,
+              Number.isNaN(loadedPoints) ? 0 : loadedPoints,
+              loadedStreak,
+              loadedLastCheckIn,
+              loadedTasks,
+              loadedLastTaskDate ?? undefined
+            );
+          }
         }
       } catch (err) {
         console.error("Error fetching game data from Firestore:", err);
@@ -373,7 +393,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       window.dispatchEvent(new Event("profile-updated"));
     }
 
-    await writeGameState(buildings, updatedPoints, streakCount, lastCheckIn, undefined, lastTaskDate ?? undefined);
+    await writeGameState(buildings, updatedPoints, streakCount, lastCheckIn, updatedTasks, lastTaskDate ?? undefined);
   };
 
   const checkInStreak = async () => {
@@ -417,7 +437,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       window.dispatchEvent(new Event("profile-updated"));
     }
 
-    await writeGameState(buildings, updatedPoints, newStreak, todayStr, undefined, lastTaskDate ?? undefined);
+    await writeGameState(buildings, updatedPoints, newStreak, todayStr, dailyTasks, lastTaskDate ?? undefined);
   };
 
   const getBuildingTotalCost = (building: Building): number => {
@@ -443,7 +463,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (pointsToDeduct === 0) {
       setDailyTasks(nextTasks);
-      await writeGameState(buildings, ecoPoints, streakCount, lastCheckIn, undefined, lastTaskDate ?? undefined);
+      await writeGameState(buildings, ecoPoints, streakCount, lastCheckIn, nextTasks, lastTaskDate ?? undefined);
       return;
     }
 
@@ -492,7 +512,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       window.dispatchEvent(new Event("profile-updated"));
     }
 
-    await writeGameState(tempBuildings, finalPoints, streakCount, lastCheckIn, undefined, lastTaskDate ?? undefined);
+    await writeGameState(tempBuildings, finalPoints, streakCount, lastCheckIn, nextTasks, lastTaskDate ?? undefined);
   };
 
   return (
